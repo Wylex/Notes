@@ -1,0 +1,118 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{amssymb}
+
+\title{AI Crash Course}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\section{Introduction (cf C.1)}
+
+\subsection{Reinforcement Learning}
+Principles:
+\begin{enumerate}
+\item{Inputs, outputs}
+Inputs: states
+Outputs: action
+
+In the middle: function called policy
+\item{The reward}
+Metric that will tell the AI performance
+
+\item{AI environment}
+Input, Output, Reward are always part of the environment then depends of application. For example, for a self-driving car, the roads, objects around those roads are also part of it.
+\item{The Markov decision process}
+Models how the AI interacts with the environment over time.
+\begin{enumerate}
+	\item The AI observes the current state $S_t$
+	\item The AI performs action $a_t$
+	\item The AI reveives the reward $r_t = R(S_t, a_t)$
+	\item The AI enters the following state $S_{t+1}$
+\end{enumerate}
+Goal of AI, maximize the accumulated rewards that is, the sum of all the $r_t$
+\item{Training and inference}
+Training and inference are two distinct modes
+\end{enumerate}
+
+\subsection{Process}
+\begin{enumerate}
+	\item Clearly understand the problem
+	\item Set up the environment
+		\begin{itemize}
+			\item [-] Define the states
+			\item [-] Define actions
+			\item [-] Rewards
+		\end{itemize}
+\end{enumerate}
+
+\section{Thomson Sampling (cf C.5)}
+Beta distribution: $x \mapsto y = \beta(x,a,b)$\\
+
+
+\begin{enumerate}
+\item Given two Beta distributions with the same parameter b, the one having a larger parameter a will be shifted more to the right
+\item Given two Beta distributions with the same parameter a, the one having a larger parameter b will be shifted more to the left
+
+\subsection{Multi-armed bandit}
+
+Problem in which a fixed limited set of resources must be allocated between competing (alternative) choices in a way that maximizes their expected gain.\\
+This is a classic reinforcement learning problem that exemplifies the exploration-exploitation tradeoff dilemma ("exploitation" of the machine that has the highest expected payoff and "exploration" to get more information about the expected payoffs of the other machines).
+
+
+\section{Q-Learning (cf C.7)}
+Two fundamentals:
+\begin{enumerate}
+	\item There are a finite number of states
+	\item There are a finite number of actions
+\end{enumerate}
+
+\subsection{The Q-value}
+To each couple of state and action, we are going to associate a numeric value: $q: (s \in S,\ a \in A) \mapsto q(s,a) \in \mathbb{R}$\\
+We will say that $q(s,a)$ is the Q-value of the action aperformed in the state s
+
+\subsection{The temporal difference}
+Let's say we are in $S_t$. We perform an action randomly that brings us to $S_{t+1}$ and we get $R(s_t, a_t)$\\
+The temporal difference at time $t$ denoted by $TD_t(s_t,a_t)$ is the difference between: $R(s_t,a_t) + \gamma \max_a(Q(s_{t+1},a))$ and $q(s_t,a_t)$\\
+
+Discount factor: $\gamma \in [0,1]$\\
+
+\[TD_t(s_t,a_t) = R(s_t,a_t) + \gamma \max_a(q(s_{t+1},a))- q(s_t,a_t)\]
+
+The temporal difference represents how well the AI is learning. Here's how it works, with respect to the training process (during which the q-values are learned)
+
+\begin{enumerate}
+	\item At the beginning of the training the q-values are set to zero. Since the AI is looking to get the good rewards, it is looking for the high temporal differences.
+	\item When the AI gets a great reward, the specific q-value of the (state,action) that led to that great reward increases, so the AI can remember how it got to that high reward. The q-values are important because they indicate to the AI which transitions lead to the good rewards.
+	\item The next step of the AI is not only to look fot the great rewards, but also to look at the same time for the high q-values. Because the high q-values are the ones that lead to the higher q-values that lead eventually to the highest reward.\\
+The AI looks for the high q-values and as soon as it finds them, the q-values of the (state,acion) that led to these high q-values will increase.
+	\item At some point, the AI will know all the transitions that lead to the good rewards and high q-values. Since the q-values of these transitions have already been increased over time, the temporal differences decrease in the end. In fact the closer we get to the final goal, the smaller the temporal differences become.
+\end{enumerate}
+In conclusion, the temporal difference is like a temporary intrinsic reward, of which the AI will try to find the large values at the beginning of the training. Eventually, the AI will minimize this reward as it gets to the end of the training.
+
+\subsection{The Bellman equation}
+How will the AI update these q-values? At each iteration, you update the q-values from time $t-1$(previous iteration) to $t$(current iteration) through the following equation, called the Bellman equation:
+\[q_t(s_t,a_t) = q_{t-1}(s_t,a_t) + \alpha TD_t(s_t,a_t)\]
+Where $\alpha \in \mathbb{R}$ is the learning rate which dictates how fast the learning of the q-values goes.
+
+Intuition:\\
+item The q-values measure the accumulation of "good surprise" or "frustration" associated with the couple of action and state.\\
+In the "good surprise" case of high temporal difference, the AI is reinforced and in the "frustration" case of a low temporal difference, the AI is weakened.\\
+We want to learn the q-values that will give the AI the maximum "good surprise" and that's exactly what the Bellman equation does.
+
+\subsection{Inference}
+
+When in a certain state $S_t$ you simply perform the action $a_t$ that has the highest q-value for that state.
+
+
+\subsection{Important rule}
+Very important rule: the AI, when it is powered by Q-learning (or deep Q-learning) will always learn to reach the highest reward by the quickest route that does not penalize the AI with negative rewards.
+
+\section{Deep Q-Learning (cf C.9)}
+
+\end{document}

@@ -1,0 +1,142 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{Pandas}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\setlength{\parindent}{0cm}
+
+\section{Load, display}
+
+\begin{verbatim}
+pd.read_csv(file)
+df.head() / df.tail
+df.shape
+pd.set_option('display.max_columns', ), same for rows
+\end{verbatim}
+
+\section{Dataframes}
+
+A dataframe can be seen as a dictionary where the keys are the columns and the values are the rows.\\
+A dataframe can be initialized with an actual dictionary:
+\begin{verbatim}
+df = pd.DataFrame(dic)
+\end{verbatim}
+
+\subsection{Columns}
+
+How to acces a single column?
+\begin{verbatim}
+df['column']
+\end{verbatim}
+Returns a Series object. It is a list of data but with more functionnalities.\\
+It is also possible to use:
+\begin{verbatim}
+df.column
+\end{verbatim}
+Return a dataset subset (filter out columns):
+\begin{verbatim}
+df[['column1, 'column2']]
+\end{verbatim}
+
+\subsection{Rows}
+Acces row by integer location (returns a series):
+\begin{verbatim}
+df.iloc[0]
+\end{verbatim}
+Or for multiple rows (return a dataframe):
+\begin{verbatim}
+df.iloc[[0,1]]
+\end{verbatim}
+And it's also possible to specify a column:
+\begin{verbatim}
+df.iloc[[0,1], [0,1]]
+\end{verbatim}
+We can search rows by integers(iloc) or by index:
+\begin{verbatim}
+df.loc[label]
+df.loc[[labelRow], [labelColumn]]
+\end{verbatim}
+It is possible to pass slices (rows 0 to 10 included):
+\begin{verbatim}
+df.loc[0:10, label1:labeln]
+\end{verbatim}
+
+\section{Indexes}
+
+Indexes don't need to be unique in pandas but they usually are.\\
+It's possible to change default indexes (integer id) with:
+\begin{verbatim}
+df.set_index('column')
+\end{verbatim}
+It returns a new dataframe with the new index. Or we can use the argument \verb|inplace=True|.\\
+To reset the indexes:
+\begin{verbatim}
+df.reset_index(inplace=True)
+\end{verbatim}
+It's possible to initialize a dataframe with the optional argument:
+\begin{verbatim}
+index_col='column'
+\end{verbatim}
+It's also possible to sort by indexes:
+\begin{verbatim}
+df.sort_index()
+\end{verbatim}
+
+\section{Filtering}
+
+Filter mask:
+\begin{verbatim}
+filt = (df['column'] == 'something')
+\end{verbatim}
+Returns a Series object of True and False values. It's then possible to apply this filter:
+\begin{verbatim}
+df[filt]
+\end{verbatim}
+It will filter the dataframe and will just keep the rows such that: \verb|row['column'] == x|\\
+We get the same result with
+\begin{verbatim}
+df.loc[filt]
+df.loc[filt, 'column']
+\end{verbatim}
+
+\subsection{filtering operators}
+
+\& and | operators:
+\begin{verbatim}
+filt = (df['column'] == x) & (df['column2'] == y)
+\end{verbatim}
+
+Multiple conditions (equivalent notations):
+\begin{verbatim}
+countries = ['India', 'France', 'Spain']
+filt = df['column'].isin(countries)
+
+filt = (df['column'] == 'India') |
+(df['column'] == 'France') |
+(df['column'] == 'Spain')
+\end{verbatim}
+
+\subsection{Negate filter}
+It's possible to get the opposite of the filter mask:
+\begin{verbatim}
+df.loc[~filt]
+\end{verbatim}
+
+\subsection{String methods}
+
+\begin{verbatim}
+filt = df['column'].str.contains('something')
+filt = df['column'].str.contains('something', na=False)
+\end{verbatim}
+na parameter is for non string values (NaN or others)
+
+
+\end{document}
