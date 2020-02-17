@@ -13,6 +13,8 @@
 
 \setlength{\parindent}{0cm}
 
+Library built on top of NumPy
+
 \section{Load, display}
 
 \begin{verbatim}
@@ -137,6 +139,84 @@ filt = df['column'].str.contains('something')
 filt = df['column'].str.contains('something', na=False)
 \end{verbatim}
 na parameter is for non string values (NaN or others)
+
+\section{Update}
+
+\subsection{Update columns}
+We can update all the column names with:
+\begin{verbatim}
+df.columns = []
+\end{verbatim}
+
+Examples:
+\begin{itemize}
+\item To upperCase:
+\begin{verbatim}
+df.columns = [x.upper() for x in df.columns]
+\end{verbatim}
+
+\item Replace spaces:
+\begin{verbatim}
+df.columns = df.columns.str.replace(' ', '_')
+\end{verbatim}
+\end{itemize}
+
+Update just some columns:
+\begin{verbatim}
+df.rename(columns={'oldName': 'newName'}, inplace=True)
+\end{verbatim}
+
+\subsection{Update rows}
+
+Update everything:
+\begin{verbatim}
+df.iloc[0] = [c1, c2, ..., cn]
+\end{verbatim}
+
+We can specify columns:
+\begin{verbatim}
+df.iloc[0, [c1, c2]] = [c1, c2]
+\end{verbatim}
+
+Or single value:
+\begin{verbatim}
+df.iloc[0, c1] = c1
+\end{verbatim}
+
+Update a whole column (set column Serie to another Serie):
+\begin{verbatim}
+df['column'] = Serie(something)
+\end{verbatim}
+
+\subsection{Tools}
+\subsubsection{Apply}
+
+Apply funtion on Series objects:
+\begin{verbatim}
+df.['email'].apply(len)
+\end{verbatim}
+Returns a Series object with the len of each email\\
+
+Apply function on dataframes:
+\begin{verbatim}
+df.apply(pd.Series.min)
+\end{verbatim}
+Applies the fucntion to each Serie object (the columns). So this function returns a Serie object with each column and the min function applied to each column.\\
+
+It's possible to apply the function to rows instead of columns by changing the axis
+
+\subsubsection{applymap (DataFrame)}
+\begin{verbatim}
+df.applymap(len)
+\end{verbatim}
+
+Applies the function to each element in the dataframe. Returns a dataframe
+
+\subsubsection{map and replace (Serie)}
+\begin{verbatim}
+df['c1'].map({'Yes': True, 'No': False})
+\end{verbatim}
+Returns a Serie object replacing the values. Values not specified in the dictionary are replaced by NaN. The function \verb|replace| keeps these values
 
 
 \end{document}
