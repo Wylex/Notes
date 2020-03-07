@@ -49,10 +49,11 @@ Define author name and email:
 
 \section{Revert changes}
 
-View previous commit:
+View previous commit (moves the HEAD):
 \begin{verbatim}
   git checkout <commit-id>
 \end{verbatim}
+Rq. The HEAD is Git's internal way of indicating the snapshot that is currently checked out. The HEAD normally resides on the tip of a development branch. When we checkout a previous commit we can no longer say we are on the <branch-name> branch since it contains more recent snapshots than the HEAD $\rightarrow$ currently on no branch.\\
 
 Go back to last commit:
 \begin{verbatim}
@@ -87,6 +88,13 @@ Undo uncommitted changes (\danger\ operate on the working directory, not on comm
 \end{itemize}
 
 \section{Branches}
+
+Rq. It's not possible to add new commits when not on a branch.\\
+
+List existing branches:
+\begin{verbatim}
+  git branch
+\end{verbatim}
 
 List existing branches:
 \begin{verbatim}
