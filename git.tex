@@ -39,6 +39,12 @@ Commit snapshot:
 View a repository's commit history:
 \begin{verbatim}
   git log
+  git log -n <number-of-commits>
+\end{verbatim}
+
+Show commits in branch-name2 that aren't in branch-name:
+\begin{verbatim}
+  git log <branch-name>..<branch-name2>
 \end{verbatim}
 
 Define author name and email:
@@ -131,5 +137,49 @@ Delete branch
 \begin{verbatim}
   git branch -d <branch-name>
 \end{verbatim}
+
+\section{Rebasing}
+
+Rebase branch to current branch:
+\begin{verbatim}
+  git rebase <new-base>
+\end{verbatim}
+
+Interactive rebase (Rebase and modify commits):
+\begin{verbatim}
+  git rebase -i <new-base>
+\end{verbatim}
+
+Rq. Interactive rebase commands:
+\begin{itemize}
+  \item [-] pick: keep that commit
+  \item [-] squash: combine commit with previous one
+  \item [-] edit: gives the opportunitu to alter the staged snapshot before committing it. \verb|git rebase --amend| to add changes to commit and \verb|git rebase --continue| to continue rebase
+\end{itemize}
+If lost in the middle of a rebase and afraid to continue use \verb|git rebase --abort| to abandon it and start over from scratch.
+$ $\\
+
+\section{Rewriting history}
+
+Split commits:
+\begin{verbatim}
+  git rebase -i <base>
+\end{verbatim}
+Then use the \verb|edit| command on the commit you want to split.\\
+The repository history will be set just after that commit.\\
+Instead of \verb|git rebase --amend| that would allow to modify the commited snapshot, the commit is completely removed with: \\ \verb|git reset --mixed HEAD|\textasciitilde \verb|1|
+\begin{itemize}
+  \item [-] The \verb|HEAD|\textasciitilde \verb|1| parameter tells it to reset to the commit that occurs immediately before the current HEAD
+  \item [-] The \verb|-- mixed| flag preserves the working directory
+\end{itemize}
+It's then possible to make as many commits as possible and finish with \verb|git rebase --continue|\\
+
+View every change made in the repository:
+\begin{verbatim}
+  git reflog
+\end{verbatim}
+Rq. It's possible with it to find dangling commits that would otherwise be lost from the project history.
+
+\section{Remotes}
 
 \end{document}
