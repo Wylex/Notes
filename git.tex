@@ -245,4 +245,19 @@ Rq. Git won't let anyone push to a remote server if it doesn't result in a fast-
 
 Rq. Never, ever rebase commits that have been pushed to a shared repository. If you need to change a public commit, use the \verb|git revert| command.
 
+\section{Distributed workflows}
+
+Using the integrator workflow our private development process largely ramains the same but we've added an additional task: incorporating changes from third-party contributors.\\
+You'll never have to worry about security using an integrator workflow because you'll still be the only one with access to the "official" repository.\\
+There's also an interesting side effect to this kind of security. By giving each developer their own public repository, the integrator workflow creates a more stable development environment for open-source software projects. Should the lead developer stop maintaining the "official" repository, any of the other participants could take over by simply designating their public repository as the new "official" project.
+
+\section{Patched workflows}
+
+Create a patch from commit:
+\begin{verbatim}
+  git format-patch <branch>
+\end{verbatim}
+The branch parameter tells Git to generate patches for every commit in the current branch that's missing from <branch>\\
+This will generate .patch files that contains enough information to re-create the commit from the last step.
+
 \end{document}
