@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
+\usepackage{fourier}
 
 \title{Git}
 
@@ -27,7 +28,7 @@ View status:
 
 Add to snapshot:
 \begin{verbatim}
-  git add
+  git add <file>
 \end{verbatim}
 
 Commit snapshot:
@@ -37,7 +38,7 @@ Commit snapshot:
 
 View a repository's commit history:
 \begin{verbatim}
-  git commit 
+  git log 
 \end{verbatim}
 
 Define author name and email:
@@ -46,5 +47,45 @@ Define author name and email:
   git config user.email
 \end{verbatim}
 
+\section{Revert changes}
+
+View previous commit:
+\begin{verbatim}
+  git checkout <commit-id>
+\end{verbatim}
+
+Go back to last commit:
+\begin{verbatim}
+  git checkout master
+\end{verbatim}
+
+Tag a commit (for easier acces):
+\begin{verbatim}
+  git tag -a <tag-name> -m <description>
+\end{verbatim}
+
+Revert a commit (commits a new snapshot without the specified one):
+\begin{verbatim}
+  git revert <commit-id>
+\end{verbatim}
+
+Unstage files:
+\begin{verbatim}
+  git reset
+\end{verbatim}
+
+Undo uncommitted changes (\danger\ operate on the working directory, not on committed snapshots. Permanently undo changes):
+\begin{itemize}
+\item [-] Change all tracked files to match the most recent commit:
+\begin{verbatim}
+  git reset --hard
+\end{verbatim}
+\item [-] Remove all untracked files:
+\begin{verbatim}
+  git clean -f
+\end{verbatim}
+\end{itemize}
+
+\section{Branches}
 
 \end{document}
