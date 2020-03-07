@@ -59,6 +59,8 @@ Beta distribution: $x \mapsto y = \beta(x,a,b)$\\
 \item Given two Beta distributions with the same parameter b, the one having a larger parameter a will be shifted more to the right
 \item Given two Beta distributions with the same parameter a, the one having a larger parameter b will be shifted more to the left
 
+\end{enumerate}
+
 \subsection{Multi-armed bandit}
 
 Problem in which a fixed limited set of resources must be allocated between competing (alternative) choices in a way that maximizes their expected gain.\\
@@ -114,5 +116,34 @@ When in a certain state $S_t$ you simply perform the action $a_t$ that has the h
 Very important rule: the AI, when it is powered by Q-learning (or deep Q-learning) will always learn to reach the highest reward by the quickest route that does not penalize the AI with negative rewards.
 
 \section{Deep Q-Learning (cf C.9)}
+
+\subsection{Neural networks (Deep learning)}
+
+\subsubsection{Batch gradient descent}
+
+We have a batch of inputs and obtain a batch of outputs at once. The global loss error of the two batches is then computed as the sum of the loss errors between each prediction and its associated target.
+
+\subsubsection{Stochastic gradient descent}
+
+It goes input by input.
+It provides better results overall, preventing the algorithm from getting stuck in a local minimum. However it is stochastic or in other words random. \\
+At first glance, SGD seems slower because we input each element one a time. In reality it's much faster, because we don't have to load the whole dataset in the memory, nor wait for the whole dataset to pass through the model updating the weights.
+
+\subsubsection{Mini-batch gradient descent}
+
+Mini-batch gradient descent uses the best from both worlds. This is done by feeding the ANN with small batches of data, instead of feeding single input rows or the whole dataset at once. It's faster than SGD and still prevents you from getting stuck in a local minimum.
+
+\subsection{Deep Q-Learning}
+
+The inputs of the ANN is going to be the input state. The output is going to be the set of q-values for each action, meaning it is going to be a 1-dimensional vector of several q-values, one for each action that can be performed. \\
+Instead of predicting the q-values through iterative updates with the Bellan equation (simple q-learning), we'll predict them with an ANN. \\
+What are going to be the targets of these predictions? The answer in a fundamental formula in deep q-learning, the target of an input state $S_t$ is:
+\[R(s_t, a_t) + \gamma \max_a(Q(s_{t+1}, a))\]
+Where $R(s_t, a_t)$ is the last reward obtained and $\gamma$ is the discount factor. It's of course the temporal difference.
+
+\subsubsection{The softmax method}
+It is the way we're going to select the action to perform after predicting the q-values. In q-learning that was simple, the action performed was the one with the highest q-value. In deep q-learning the problems are usually more complex and so, in order to find an optimal solution, we must go through a process called exploration. \\
+Instead of performing the action that has the maximum q-value, we're going to give each action a probability proportional to its q-value. The action performed will be selected as a random draw from that distribution. \\
+Softmax method takes a random draw from the distribution. That's the difference between softmax and argmax / exploration and exploitation.
 
 \end{document}

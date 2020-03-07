@@ -218,5 +218,20 @@ df['c1'].map({'Yes': True, 'No': False})
 \end{verbatim}
 Returns a Serie object replacing the values. Values not specified in the dictionary are replaced by NaN. The function \verb|replace| keeps these values
 
+\section{Add and remove}
+
+Add new column:
+\begin{verbatim}
+df['new_col'] = Serie
+\end{verbatim}
+
+Remove column:
+\begin{verbatim}
+df.drop(columns['c1', 'c2'], inplace=True)
+\end{verbatim}
+
+
+\section{Data preprocessing}
+
 
 \end{document}
