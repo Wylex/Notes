@@ -123,8 +123,9 @@ Merge branch to current one:
 
 Rq. Merge types
 \begin{itemize}
-  \item [-] Fast-forward merge: There's no commits since merged branch was created. Git simply moves the tip of the branch.
-\end{itemize}
+  \item [-] Fast-forward merge: There's no commits since merged branch was created. Git simply moves the tip of the branch and doesn't need a merge commit.
+  \item [-] 3-way merge: Two branches whose history has diverged. It creates an extra commit.
+\end{itemize}$ $\\
 
 Delete branch
 \begin{verbatim}
