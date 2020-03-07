@@ -182,4 +182,42 @@ Rq. It's possible with it to find dangling commits that would otherwise be lost 
 
 \section{Remotes}
 
+First off, configure repository:
+\begin{verbatim}
+  git config user.name
+  git config user.email
+\end{verbatim}
+
+List the connections to other repositories:
+\begin{verbatim}
+  git remote
+  git remote -v
+\end{verbatim}
+Rq. When you clone a repository, Git automatically adds an origin remote pointing to the original repository. \\
+
+Add remote:
+\begin{verbatim}
+  git remote add <remote>
+\end{verbatim}
+
+Fetch remote branchs:
+\begin{verbatim}
+  git fetch <remote>
+\end{verbatim}
+
+View remote branchs:
+\begin{verbatim}
+  git branch -r
+\end{verbatim}
+
+Push branch to remote repository:
+\begin{verbatim}
+  git push <remote> <branch>
+\end{verbatim}
+
+Rq. Tags must be pushed by theirs own.
+\begin{verbatim}
+  git push <remote> <tag>
+\end{verbatim}
+
 \end{document}
