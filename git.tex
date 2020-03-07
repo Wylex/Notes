@@ -96,9 +96,39 @@ List existing branches:
   git branch
 \end{verbatim}
 
-List existing branches:
+Create new branch:
 \begin{verbatim}
-  git branch
+  git branch <branch-name>
+\end{verbatim}
+
+Checkout branch:
+\begin{verbatim}
+  git checkout <branch-name>
+\end{verbatim}
+
+Create and checkout branch:
+\begin{verbatim}
+  git checkout -b <branch-name>
+\end{verbatim}
+
+Remove file from working directory and index:
+\begin{verbatim}
+  git rm <file-name>
+\end{verbatim}
+
+Merge branch to current one:
+\begin{verbatim}
+  git merge <branch-name>
+\end{verbatim}
+
+Rq. Merge types
+\begin{itemize}
+  \item [-] Fast-forward merge: There's no commits since merged branch was created. Git simply moves the tip of the branch.
+\end{itemize}
+
+Delete branch
+\begin{verbatim}
+  git branch -d <branch-name>
 \end{verbatim}
 
 \end{document}
