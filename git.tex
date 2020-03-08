@@ -248,8 +248,8 @@ Rq. Never, ever rebase commits that have been pushed to a shared repository. If 
 \section{Distributed workflows}
 
 Using the integrator workflow our private development process largely ramains the same but we've added an additional task: incorporating changes from third-party contributors.\\
-You'll never have to worry about security using an integrator workflow because you'll still be the only one with access to the "official" repository.\\
-There's also an interesting side effect to this kind of security. By giving each developer their own public repository, the integrator workflow creates a more stable development environment for open-source software projects. Should the lead developer stop maintaining the "official" repository, any of the other participants could take over by simply designating their public repository as the new "official" project.
+You'll never have to worry about security using an integrator workflow because you'll still be the only one with access to the ``official'' repository.\\
+There's also an interesting side effect to this kind of security. By giving each developer their own public repository, the integrator workflow creates a more stable development environment for open-source software projects. Should the lead developer stop maintaining the ``official'' repository, any of the other participants could take over by simply designating their public repository as the new ``official'' project.
 
 \section{Patched workflows}
 
@@ -258,6 +258,83 @@ Create a patch from commit:
   git format-patch <branch>
 \end{verbatim}
 The branch parameter tells Git to generate patches for every commit in the current branch that's missing from <branch>\\
-This will generate .patch files that contains enough information to re-create the commit from the last step.
+This will generate .patch files that contains enough information to re-create the commit from the last step.\\
+
+Once the patches are generated, it's possible to send them via email. It's possible to do that with the git command \verb|git send-email .| which sends all patches in the ./ directory.\\
+
+It's then possible to apply the patches with \verb|git am < path-file|\\
+\verb|git am| reads from standard imput and generates the commit.\\
+
+In many ways, patches are a simpler way to accept contributions than the integrator workflow (using branches). Only the project maintainer needs a public repository, and he'll never have to peek at anyone else's repository.
+
+\section{Miscellaneous}
+
+Stash uncommitted changes:
+\begin{verbatim}
+  git stash
+\end{verbatim}
+
+Reapply stashed changes:
+\begin{verbatim}
+  git stash apply
+\end{verbatim}
+Rq. It's possible to apply a stash to any branch, not just the one from which it was created. So for example if you find yourself yourself developing on the wrong branch, you could stash all your changes, and apply them to the correct one.\\
+
+View changes:
+\begin{verbatim}
+  git diff <branch>..<branch2>
+\end{verbatim}
+
+Can be used to generate a detailed view of uncommitted changes:
+\begin{verbatim}
+  git diff
+\end{verbatim}
+
+Revert one file to the specified commit:
+\begin{verbatim}
+  git checkout HEAD <file>
+\end{verbatim}
+
+It's possible to define aliases:
+\begin{verbatim}
+  git config --global alias.co checkout
+\end{verbatim}
+
+\section{Plumbing}
+
+View git representation of a commit:
+\begin{verbatim}
+  git cat-file commit <commit>
+\end{verbatim}
+
+Git representation of a commit:
+\begin{itemize}
+  \item [-] a tree
+  \item [-] a parent
+  \item [-] user data
+  \item [-] a message
+\end{itemize}
+$ $\\
+A tree object is Git's representation of the ``snapshots''. They record the state of a directory at a given point, without any notion of time or author.\\
+To tie trees together into a coherent project history, Git wraps each one in a commit object and specifies a parent, whitch is just another commit.\\
+
+View tree representation:
+\begin{verbatim}
+  git ls-tree <tree-id>
+\end{verbatim}
+Rq. ``blobs'' represent files and ``trees'' represent folders. Blob objects are how Git stores file data and tree objects combine blobs and other trees into a directory listing.\\
+
+View blob representation:
+\begin{verbatim}
+  git cat-file blob <blob>
+\end{verbatim}
+This should display the entire contents of the file. Blobs are pure content: there is no mention of a filename. The name is stored in the tree that contains the blob not the blob itself.\\
+
+The fourth and last type of Git object is the tag object:
+\begin{verbatim}
+  git cat-file tag <tag>
+\end{verbatim}
+
+Rq. A branch is just a reference to a commit object.
 
 \end{document}
