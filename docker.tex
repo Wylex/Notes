@@ -27,12 +27,135 @@
 
 \verb|docker images|: see a list of availables images\\
 
-\verb|docker rm -i <image>|: remove an image\\
+\verb|docker rmi <image>|: remove an image\\
 
 \verb|docker exec <container> <command>|: execute a command on the container\\
 
 \verb|docker run -d <image>|: run the docker container in the background mode\\
 
-A container only lives as long as the process inside it is alive
+Rq. A container only lives as long as the process inside it is alive
+
+\section{Run commands}
+
+\verb|docker run <image>:<version>|: run an image of that version. The default tag is `latest'\\
+
+By default the docker container does not listen to standart input. It runs in a non interactive mode. If you want to provide your input you must map the standart input of you host to the docker container:\\
+
+\verb|docker run -i <image>|\\
+The \verb|-i| parameter is for interactive mode. For attach the terminal to the container's terminal use the \verb|-t| option:\\
+
+\verb|docker run -it <image>|\\
+
+\subsection{Port mapping}
+
+If you dockerize a web server that's listening on port 5000, you can then access it by using port 5000 but what IP do you use for accesing from a web browser?
+\begin{enumerate}
+  \item Use the IP of the docker container. Every docker container has an IP assigned by default. It's an internal IP and only accesible within the docker host (that contains the container). So if you open the browser form within the docker host you can go to that IP.
+  \item For accesing it outside the docker host you could use the IP of the docker host. But for that to work you must map the port inside the docker container to a free port on the docker host.
+  \begin{verbatim}
+    docker run -p 80:5000 <image>
+  \end{verbatim}
+\end{enumerate}
+
+\subsection{Volume mapping}
+
+The docker container has it's own isolated filesystem. If you have a container with a mysql image and you delete the container, all the data is deleted. If you want to persist data you would want to map a directory outside the container on the docker host to a directory inside the container.
+\begin{verbatim}
+  docker run -v <docker host file>:<container file> mysql
+\end{verbatim}
+
+\subsection{Inspect Container}
+
+\verb|docker inspect <container>|: it returns all the details of a container in a json format
+
+\subsection{Container Logs}
+
+To view the standart output of a container use:
+\begin{verbatim}
+  docker logs <container>
+\end{verbatim}
+
+\section{ENV Variables}
+
+If you have some code that takes ENV variables, once you app gets packaged into a docker image, you would then run it with the \verb|-e| option.
+\begin{verbatim}
+  docker run -e APP_COLOR=blue <image>
+\end{verbatim}
+
+\section{Create your own image}
+
+Why to create your own image? It could be because you can't find a component or a service that you want to use as part of your application on docker hub or because the application that you are developping will be dockerize for ease of shipping and deployment.
+
+Let's package a flask web server:\\
+First what would be the steps to deploy the app manually:
+\begin{enumerate}
+  \item  operating system like ubuntu
+  \item update the source repo
+  \item install dependencies
+  \item install python
+  \item copy the source code
+  \item run the web server using the flask command 
+\end{enumerate}
+
+How to create the image:
+\begin{enumerate}
+  \item First create a docker file na,ed Dockerfile and write down the instruction for setting up the application:
+\begin{verbatim}
+FROM Ubuntu
+
+RUN apt-get update
+RUN apt-get install python
+
+RUN pip install flask
+RUN pip install flask-mysql
+
+COPY . /opt/source-code
+
+ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run
+\end{verbatim}
+\item build your image using the \verb|docker build| command and specify the dockerfile as input as well as a tagname for the image:
+\begin{verbatim}
+  docker build Dockerfile -t my-custom-app
+\end{verbatim}
+This will create an image locally on your system
+\item to make it available on the docker hub registry use
+\begin{verbatim}
+  docker push my-custom-app
+\end{verbatim}
+\end{enumerate}
+
+\subsection{The Dockerfile}
+
+The dockerfile is a text file written in a specific format. Every docker image must be based of another image. Either an OS or anoher image based on an OS. \\
+\verb|ENTRYPOINT| allows us to specify a command that will be run when the image is runned as a container.
+
+\section{Command arguments}
+
+\verb|CMD| default command for an image. It's possible to override the default command for an image by creating a new image from it with \verb|FROM image| and oveeride then the \verb|CMD|
+It's also possible to do it when running the image:
+\begin{verbatim}
+  docker run ubuntu sleep 5
+\end{verbatim}
+
+The \verb|ENTRYPOINT| instruction is like the command instruction \verb|CMD| as in you can specify the program that will be runned when the container starts. What's different is that whatever you specify on the command line will get appended to the entry point. In case of the command line parameters passed will get replaced entirely.
+
+It's possible to use both in case you want a default value for the \verb|ENTRYPOINT|. In this case the \verb|CMD| instruction will be appended to the \verb|ENTRYPOINT| instruction.
+
+\section{Networking}
+
+When you install docker it creates three networks automatically: Bridge, none, host. Bridge is the default network a container gets attached to. If you would like to associate the container with any other network you can specify the network information:
+\begin{verbatim}
+  docker run Ubuntu --network=none
+\end{verbatim}
+\begin{itemize}
+  \item [-] The Bridge network is a private internal network created by docker on the host. Containers get attached to it by default and get an internal IP adress. The containers can access each other using this internal IP. To access any of these container to the outside world, map the ports of these containers to ports on the docker host.
+  \item [-] Another way to access a container from the outside is by associating it to the host network. This take out any isolation between the docker host and the docker container. You don't need to map the ports but you can't run several containers on the same port anymore. As the ports are now common to all containers.
+  \item [-] With the none network the containers are not attached to any network and doesn't have any access to the external network or other containers. They are in an isolated network.
+\end{itemize}
+
+By default docker only creates one internal Bridge network. We can create our own iternal networks using the command:
+\begin{verbatim}
+
+\end{verbatim}
 
 \end{document}
