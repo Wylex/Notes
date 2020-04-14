@@ -1,0 +1,38 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{Docker}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\section{Docker Commmands}
+
+\verb|docker pull|: pull an image\\
+
+\verb|docker run <image>|: start a container, runs an instance of the image. If the image is not present it will go out to docker hub and pull the image down\\
+
+\verb|docker ps|: list all running containers. The container id and name are randomly generated
+
+\verb| -a |: list stopped containers also\\
+
+\verb|docker stop <id / name>|: stop container\\
+
+\verb|docker rm <id / name>|: remove a stopped or exited container\\
+
+\verb|docker images|: see a list of availables images\\
+
+\verb|docker rm -i <image>|: remove an image\\
+
+\verb|docker exec <container> <command>|: execute a command on the container\\
+
+\verb|docker run -d <image>|: run the docker container in the background mode\\
+
+A container only lives as long as the process inside it is alive
+
+\end{document}

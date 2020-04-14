@@ -18,16 +18,21 @@ Library built on top of NumPy
 \section{Load, display}
 
 \begin{verbatim}
-pd.read_csv(file)
+pd.read_csv(file_name)
 df.head() / df.tail
 df.shape
-pd.set_option('display.max_columns', ), same for rows
 \end{verbatim}
+
+Remove the `\ldots' when displaying:
+\begin{verbatim}
+pd.set_option(`display.max_columns', max_columns)
+\end{verbatim}
+Rq. Same for rows
 
 \section{Dataframes}
 
-A dataframe can be seen as a dictionary where the keys are the columns and the values are the rows.\\
-A dataframe can be initialized with an actual dictionary:
+A DataFrame can be seen as a dictionary where the keys are the columns and the values are the rows.\\
+A DataFrame can be initialized with an actual dictionary:
 \begin{verbatim}
 df = pd.DataFrame(dic)
 \end{verbatim}
@@ -36,24 +41,24 @@ df = pd.DataFrame(dic)
 
 How to acces a single column?
 \begin{verbatim}
-df['column']
+df[`column_name']
 \end{verbatim}
 Returns a Series object. It is a list of data but with more functionnalities.\\
 It is also possible to use:
 \begin{verbatim}
-df.column
+df.column_name
 \end{verbatim}
 Return a dataset subset (filter out columns):
 \begin{verbatim}
-df[['column1, 'column2']]
+df[[`column_name_1, `column_name_2']]
 \end{verbatim}
 
 \subsection{Rows}
-Acces row by integer location (returns a series):
+Acces row by integer location (returns a Series):
 \begin{verbatim}
 df.iloc[0]
 \end{verbatim}
-Or for multiple rows (return a dataframe):
+Or for multiple rows (return a DataFrame):
 \begin{verbatim}
 df.iloc[[0,1]]
 \end{verbatim}
@@ -61,14 +66,16 @@ And it's also possible to specify a column:
 \begin{verbatim}
 df.iloc[[0,1], [0,1]]
 \end{verbatim}
-We can search rows by integers(iloc) or by index:
+It's possible to search rows by integers(iloc) but also by index:
 \begin{verbatim}
 df.loc[label]
-df.loc[[labelRow], [labelColumn]]
+df.loc[[labels_row], [labels_column]]
 \end{verbatim}
+Rq. By default row indexes are integer ids so \verb|iloc| $\Leftrightarrow$ \verb|loc|. \\
+
 It is possible to pass slices (rows 0 to 10 included):
 \begin{verbatim}
-df.loc[0:10, label1:labeln]
+df.loc[0:10, label_1:label_n]
 \end{verbatim}
 
 \section{Indexes}
@@ -76,16 +83,17 @@ df.loc[0:10, label1:labeln]
 Indexes don't need to be unique in pandas but they usually are.\\
 It's possible to change default indexes (integer id) with:
 \begin{verbatim}
-df.set_index('column')
+df.set_index(`column')
 \end{verbatim}
-It returns a new dataframe with the new index. Or we can use the argument \verb|inplace=True|.\\
+It returns a new DataFrame with the index set to the column specified. Or we can use the argument \verb|inplace=True|.\\
+
 To reset the indexes:
 \begin{verbatim}
 df.reset_index(inplace=True)
 \end{verbatim}
-It's possible to initialize a dataframe with the optional argument:
+It's possible to initialize a DataFrame with the optional argument:
 \begin{verbatim}
-index_col='column'
+index_col=`column'
 \end{verbatim}
 It's also possible to sort by indexes:
 \begin{verbatim}
@@ -102,7 +110,7 @@ Returns a Series object of True and False values. It's then possible to apply th
 \begin{verbatim}
 df[filt]
 \end{verbatim}
-It will filter the dataframe and will just keep the rows such that: \verb|row['column'] == x|\\
+It will filter the DataFrame and will just keep the rows such that: \verb|row['column'] == x|\\
 We get the same result with
 \begin{verbatim}
 df.loc[filt]
@@ -183,9 +191,9 @@ Or single value:
 df.iloc[0, c1] = c1
 \end{verbatim}
 
-Update a whole column (set column Serie to another Serie):
+Update a whole column (set column Series to another Series):
 \begin{verbatim}
-df['column'] = Serie(something)
+df['column'] = Series(something)
 \end{verbatim}
 
 \subsection{Tools}
@@ -197,11 +205,11 @@ df.['email'].apply(len)
 \end{verbatim}
 Returns a Series object with the len of each email\\
 
-Apply function on dataframes:
+Apply function on DataFrame:
 \begin{verbatim}
 df.apply(pd.Series.min)
 \end{verbatim}
-Applies the fucntion to each Serie object (the columns). So this function returns a Serie object with each column and the min function applied to each column.\\
+Applies the fucntion to each Series object (the columns). So this function returns a Series object with each column and the min function applied to each column.\\
 
 It's possible to apply the function to rows instead of columns by changing the axis
 
@@ -210,28 +218,51 @@ It's possible to apply the function to rows instead of columns by changing the a
 df.applymap(len)
 \end{verbatim}
 
-Applies the function to each element in the dataframe. Returns a dataframe
+Applies the function to each element in the DataFrame. Returns a DataFrame
 
-\subsubsection{map and replace (Serie)}
+\subsubsection{map and replace (Series)}
 \begin{verbatim}
 df['c1'].map({'Yes': True, 'No': False})
 \end{verbatim}
-Returns a Serie object replacing the values. Values not specified in the dictionary are replaced by NaN. The function \verb|replace| keeps these values
+Returns a Series object replacing the values. Values not specified in the dictionary are replaced by NaN. The function \verb|replace| keeps these values
 
 \section{Add and remove}
 
+\subsection{Columns}
+
 Add new column:
 \begin{verbatim}
-df['new_col'] = Serie
+df['new_col'] = <Series>
 \end{verbatim}
 
 Remove column:
 \begin{verbatim}
-df.drop(columns['c1', 'c2'], inplace=True)
+df.drop(columns=['c_name', 'c_name_2'], inplace=True)
 \end{verbatim}
+
+Split and create two new columns:
+\begin{verbatim}
+df[['c_name', 'c_name_2']] = df['c_name_3'].str.split(' ', expand=True)
+\end{verbatim}
+Rq. With \verb|expand=False|, \verb|split| returns a Series of lists. With \verb|expand=True| it returns a DataFrame with columns.
+
+\subsection{Rows}
+
+Add rows:
+\begin{verbatim}
+df.append({'column_name': 'value'})
+\end{verbatim}
+Rq. Missing keys will have a value of \verb|NaN|.
 
 
 \section{Data preprocessing}
+
+Vectorized string functions for Series and Index:
+\begin{verbatim}
+  <Series>.str
+\end{verbatim}
+
+\section{Tools}
 
 
 \end{document}
