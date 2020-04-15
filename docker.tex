@@ -95,7 +95,7 @@ First what would be the steps to deploy the app manually:
   \item install python
   \item copy the source code
   \item run the web server using the flask command 
-\end{enumerate}
+\end{enumerate}$ $
 
 How to create the image:
 \begin{enumerate}
@@ -151,11 +151,54 @@ When you install docker it creates three networks automatically: Bridge, none, h
   \item [-] The Bridge network is a private internal network created by docker on the host. Containers get attached to it by default and get an internal IP adress. The containers can access each other using this internal IP. To access any of these container to the outside world, map the ports of these containers to ports on the docker host.
   \item [-] Another way to access a container from the outside is by associating it to the host network. This take out any isolation between the docker host and the docker container. You don't need to map the ports but you can't run several containers on the same port anymore. As the ports are now common to all containers.
   \item [-] With the none network the containers are not attached to any network and doesn't have any access to the external network or other containers. They are in an isolated network.
-\end{itemize}
+\end{itemize}$ $
 
 By default docker only creates one internal Bridge network. We can create our own iternal networks using the command:
 \begin{verbatim}
-
+  docker network create \
+    --driver bridge \
+    --subnet 182.18.0.0/16
+    custom-isolated-network
 \end{verbatim}
+
+\verb|docker network ls|: list all networks
+
+\subsection{Embedded DNS}
+
+Suppose you have a web container and a mysql container. You want to access mysql from the server and both are on the same network. You could access mysql with its ip but it's not ideal because it could change. The right way to do it is to use the container name. All containers in a docker host can resolve each other with the name of the container. Docker has a built in DNS server.
+
+Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual ethernet pairs to connect the containers together.
+
+\section{Storage}
+
+When you install docker all files related to container and images and others are stored in \verb|/var/lib/docker/|\\
+
+You can add a persistent volume to a container. For that first create a volume:
+\begin{verbatim}
+  docker volume create data_volume
+\end{verbatim}
+This creates a directory \verb|volumes| in \verb|/var/lib/docker/| and a subdirectory \verb|data_volume| inside it.\\
+
+You can then run the docker container with the volume:
+\begin{verbatim}
+  docker run -v data_volume:<location_inside_container> mysql
+\end{verbatim}
+This will mount the volume into the specified directory. So all data is stored in the volume on the docker host. Even if the container is destroyed, the data is still active.\\
+
+Rq. If you run the \verb|docker run -v| before actually creating the volume, docker will create for you.\\
+
+If you want to store data in the docker host outside the default \verb|/var/lib/docker/volumes| you have to run the container with the complete path of the volume:
+\begin{verbatim}
+  docker run -v /data/mysql:<location_inside_container> mysql
+\end{verbatim}
+This is called bind mounting (vs volume mounting)\\
+
+Rq. The \verb|-v| is the old way of doing the new way is with the \verb|--mount| parameter:
+\begin{verbatim}
+  docker run \
+    --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql
+\end{verbatim}
+
+\section{Docker compose}
 
 \end{document}
