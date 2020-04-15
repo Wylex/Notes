@@ -201,4 +201,165 @@ Rq. The \verb|-v| is the old way of doing the new way is with the \verb|--mount|
 
 \section{Docker compose}
 
+If we need to setup a complex application running multiple services, a better way to do it is to use \verb|docker-compose|. With docker compose we could create a configuration file in yaml format called \verb|docker-compose.yaml| and put together the different services and the options specific to running them.
+\begin{verbatim}
+services:
+  web:
+    image: "simple-webapp"
+  database:
+    image: "mongodb"
+  messaging:
+    image: "redis:alpine"
+  orchestration:
+    image: "ansible"
+\end{verbatim}
+
+And then just use the:
+\begin{verbatim}
+  docker-compose up
+\end{verbatim}
+
+\subsection{Example, voting app}
+
+App flow:
+\begin{enumerate}
+  \item voting-app front (python)
+  \item in-memory DB (reddis)
+  \item worker (.NET)
+  \item db (postreSQL)
+  \item result-app (Node)
+\end{enumerate}
+
+\subsubsection{Docker run commands}
+\begin{verbatim}
+  docker run -d --name=redis redis (-d to add container in bg)
+  docker run -d --name=db postgres:9.4
+  docker run -d --name=vote -p 5000:80 voting-app
+  docker run -d --name=result -p 5001:80 result-app
+  docker run -d --name=worker worker
+\end{verbatim}
+
+You need to create the links between the containers
+\begin{verbatim}
+  docker run -d --name=redis redis (-d to add container in bg)
+  docker run -d --name=db --link db:db postgres:9.4
+  docker run -d --name=vote -p 5000:80 --link redis:redis voting-app
+    (--link <container_name>:<host_name>)
+  docker run -d --name=result -p 5001:80 result-app
+  docker run -d --name=worker --link db:db --link redis:redis worker
+\end{verbatim}
+
+Rq. Using links this way is deprecated.
+
+\subsubsection{Docker compose}
+
+Container names are the keys:
+\begin{verbatim}
+redis:
+  image: redis
+db:
+  image: postgres:9.4
+vote:
+  image: voting-app
+  ports:
+    - 5000:80
+  links:
+    - redis
+result:
+  image: result-app
+  ports:
+    - 5001:80
+  links:
+    - db
+worker:
+  image: worker
+  links:
+    - redis
+    - db
+\end{verbatim}
+
+Rq. \verb|db:db| $\Leftrightarrow$ \verb|db|
+
+\subsection{Docker compose build}
+
+We assumed all docker images were already built. redis and postgres are official images and already available on docker hub but the other three are not. If we would like to instruct docker-compose to run a docker build instead of trying to pull an image we could replace the \verb|image| line with a \verb|build| line and specify the location of a directory which contains the application code and a Dockerfile.
+\begin{verbatim}
+  vote:
+    build: ./vote
+  result:
+    build: ./result
+  worker:
+    build: ./worker
+\end{verbatim}
+
+\subsubsection{Versions}
+
+For version 2 and up you must specify the version of the docker compose:
+\begin{verbatim}
+  version: 2
+  services:
+    redis:
+      image: redis
+    db:
+      image: postgres:9.4
+    vote:
+      image: voting-app
+      ports:
+        - 5000:80
+\end{verbatim}
+
+In version 1, docker compose attaches all the containers to the default Bridge network and then use links to allow communication.
+
+With version 2, docker compose automatically creates a dedicated Bridge network for the application and attaches all containers to that new network. All containers are then able to communicate using each others service names so you don't need links in version 2.
+
+Version 2 also introduces a depends on feature. If you wish to specify a starting order. So if the voting app is depending on the redis service you need to ensure the redis container is started first.
+\begin{verbatim}
+  vote:
+    image: voting-app
+    ports:
+      - 5000:80
+    depends_on:
+      - redis
+\end{verbatim}
+
+Then comes version 3. Similar to version 2 with support to docker swarm.
+
+\subsubsection{Networks}
+
+Suppose we want to create two networks to separate the front and the back. We would have the voting app and result app connected to the front and everything connected to the back.
+
+\begin{verbatim}
+  version: 2
+  services:
+    redis:
+      image: redis
+      networks:
+        - back-end
+    db:
+      image: postgres:9.4
+      networks:
+        - back-end
+    vote:
+      image: voting-app
+      ports:
+        - 5000:80
+      networks:
+        - front-end
+        - back-end
+    result:
+      image: result-app
+      ports:
+        - 5001:80
+      networks:
+        - front-end
+        - back-end
+    worker:
+      image: worker
+      networks:
+        - back-end
+  networks:
+    front-end
+    back-end
+\end{verbatim}
+
 \end{document}
