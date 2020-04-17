@@ -362,4 +362,11 @@ Suppose we want to create two networks to separate the front and the back. We wo
     back-end
 \end{verbatim}
 
+\section{Docker registry}
+
+When running an image for example \verb|docker run nginx|, docker needs an image repository here it's nginx but it also needs a user/account. If none is provided docker assumes it's the same as the docker image so here we would have nginx/nginx. Where does docker pull the image from ? If no registry is specified, it uses the default docker.io (docker hub). The registry is where all the images are stored.
+\begin{verbatim}
+  docker.io/nginx/nginx
+\end{verbatim}
+
 \end{document}
