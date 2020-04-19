@@ -1,0 +1,175 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{NumPy}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+
+In Python, processing numbers is very slow. Numpy solves that. It's a very efficient numeric processing library. On top of that it's an array processing library.
+
+\setlength{\parindent}{0cm}
+
+\section{Basic NumPy Arrays}
+
+\begin{verbatim}
+  np.array(<list>)
+\end{verbatim}
+
+Rq. it's possible to have multi dimensional arrays\\
+
+Get the array type:
+\begin{verbatim}
+  <array>.dtype
+\end{verbatim}
+
+Array dimensions:
+\begin{verbatim}
+  <array>.shape
+\end{verbatim}
+
+\section{Accessing the array}
+
+Get a numPy array of selected indices:
+\begin{verbatim}
+  A[[i_1, i_2]]
+\end{verbatim}
+
+\subsection{$n=2$}
+Access an element:
+\begin{verbatim}
+  A[i,j]
+\end{verbatim}
+
+It's possible to use slices:
+\begin{verbatim}
+  A[i_1:i_2,j_1:j_2]
+\end{verbatim}
+
+Get first row:
+\begin{verbatim}
+  A[0]
+\end{verbatim}
+
+You can modify a whole section of the array:
+\begin{verbatim}
+  A[0] = np.array(<new_row>)
+\end{verbatim}
+
+Rq. You can use the expansion (the whole row is set to 0):
+\begin{verbatim}
+  A[0] = 0
+\end{verbatim}
+
+\section{Summary statistics}
+
+It possible to calculate some values:
+\begin{verbatim}
+  a.sum()
+  a.mean()
+  a.std()
+  a.var()
+\end{verbatim}
+
+Rq. Also works for matrices (whole)\\
+
+Matrices axes (or dimensions):
+\begin{verbatim}
+  A.sum(axis=0) get sum for each column
+  A.sum(axis=1) get sum for each row
+\end{verbatim}
+
+\section{Broadcasting and Vectorized operations}
+
+Get a linear array:
+\begin{verbatim}
+  np.arange(n)
+\end{verbatim}
+
+Vectorized operations are operations performed between both arrays and arrays, arrays and scalars which are extremely fast.\\
+
+The opeartion will be applied to each one of the elements of the array:
+\begin{verbatim}
+  A + 10
+\end{verbatim}
+Rq. The operation is vectorized\\
+
+Also possible to perform array, array operations:
+\begin{verbatim}
+  A + B
+\end{verbatim}
+
+\section{Boolean arrays}
+
+Selection with booleans:
+\begin{verbatim}
+  A[[True, False, False, True]]
+\end{verbatim}
+
+These boolena arrays are the result of broadcasting boolean operations:
+\begin{verbatim}
+  A >= 2
+\end{verbatim}
+
+Which allows for:
+\begin{verbatim}
+  A[A >= 2]
+\end{verbatim}
+
+\section{Linear Algebra}
+
+Dot product:
+\begin{verbatim}
+  A.dot(B)
+\end{verbatim}
+
+Cross product:
+\begin{verbatim}
+  A @ B
+\end{verbatim}
+
+Transpose
+\begin{verbatim}
+  A.T
+\end{verbatim}
+
+\section{Useful NumPy functions}
+
+\subsection{random}
+\begin{verbatim}
+  np.random.random(size=2)
+  np.random.normal(size=2)
+  np.random.rand(2,4)
+\end{verbatim}
+
+\subsection{arange}
+\begin{verbatim}
+  np.arange(10)
+  np.arange(5,10)
+  np.arange(0,1,.1)
+\end{verbatim}
+
+\subsection{reshape}
+\begin{verbatim}
+  A.reshape()
+\end{verbatim}
+
+\subsection{linspace}
+\begin{verbatim}
+  A.linspace(0,1,5)
+\end{verbatim}
+
+\subsection{zeros, ones, empty}
+\begin{verbatim}
+  np.zeros((3,3))
+  np.ones((3,3))
+  np.empty((3,3))
+\end{verbatim}
+
+\end{document}
