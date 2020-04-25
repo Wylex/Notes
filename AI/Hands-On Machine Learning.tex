@@ -1,0 +1,84 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{Hands-On Machine Learning}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\setlength{\parindent}{0cm}
+
+\section{Extract the data}
+
+Get a quick description of the data (number of rows and each attribute's type):
+\begin{verbatim}
+  df.info()
+\end{verbatim}
+
+Find out what categories exist:
+\begin{verbatim}
+  df['c'].value_counts()
+\end{verbatim}
+
+Summary of the numerical attributes:
+\begin{verbatim}
+  df.describe()
+\end{verbatim}
+
+Plot histogram for each numerical attribute:
+\begin{verbatim}
+  %matplotlib inline
+  import matplotlib.pyplot as plt
+  df.hist(bins=50)
+  plt.show()
+\end{verbatim}
+Rq. Calling \verb|show()| in a Jupyter notebook is optional
+
+
+\subsection{Test set}
+
+Create a test set:
+\begin{verbatim}
+  def split_train_set(data, test_ratio):
+    shuffled_indices = np.random.permutation(len(data))
+    test_set_size = int(len(data) * test_ratio)
+    test_indices = shuffled_indices[:test_set_size]
+    train_indices = shuffle_indices[test_set_size:]
+    return data.iloc[train_indices], data.iloc[test_indices]
+\end{verbatim}
+
+Rq. If the program runs again, the test set will not be the same which is a problem.\\
+One solution is to save the test set. Another option is to set the random number generator's seed. Both solutions will break next time you fetch an updated dataset. A common solution is to use each instance's identifier (unique and immutable) to decide whether or not it should go in the test set. For example, you could compute a hash of each instance's identifier and put that instance in the test set if the hash is lower or equal to 20\%
+\begin{verbatim}
+  from zlib import crc32
+
+  def test_set_check(identifier, test_ratio):
+    return crc32(np.int64(identifier)) & 0xffffffff
+      < test_ratio * 2**32
+
+  def split_train_test_by_id(data, test_ratio, id_column):
+    ids = data[id_column]
+    in_test_set =
+      ids.apply(lambda id_: test_set_check(id_, test_ratio))
+    return data.loc[~in_test_set], data.loc[in_test_set]
+\end{verbatim}
+
+Rq. If you use the row index as a unique identifier, you need to make sure that new data gets appended to the end of the dataset, and no row ever gets deleted. If this is not possible, then you can try to use the most stable featues to build a unique identifier.\\
+
+Scikit-learn provides a few function to split datasets. \\The simplest is \verb|split_train_test|, which does pretty much the same thing as the one defined earlier with a couple additional features. First there is a \verb|random_state| parameter that allows you to set the random generator seed and second, you can pass it multiple datasets with an identical number of rows, and it will split them on the same indices (useful if you have a separate DataFrame for labels)
+
+
+\begin{verbatim}
+  from sklearn.model_selection import train_set_split
+
+  train_set, test_set =
+    train_set_split(data, test_size=0.2, random_state=42)
+\end{verbatim}
+
+
+\end{document}
