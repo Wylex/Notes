@@ -171,4 +171,186 @@ Once you have a few promising attributes, you can plot them against each other w
   scatter_matrix(housing[attributes], figsize=(12, 8))
 \end{lstlisting}
 
+\subsection{Data Cleaning}
+
+Most Machine Learning algorithms cannot work with missing features. You have three options:
+\begin{itemize}
+  \item [-] Get rid of the correspondig entries
+  \item [-] Get rid of the whole attribute
+  \item [-] Set the values to some value (zero, the mean, the median...)
+\end{itemize}
+
+You can accomplish these easily using \lstinline{dropna(), drop(), fillna()}
+\begin{lstlisting}
+  df.dropna(subset=["column"])
+  df.drop("column", axis=1)
+  median = df["column"].median()
+  df["column"].fillna(median, inplace=True)
+\end{lstlisting}
+
+Scikit-Learn provides a handy class to take care of missing values: \lstinline{SimpleImputer}
+\begin{lstlisting}
+  from sklearn.impute import SimpleImputer
+
+  imputer = SimpleImputer(strategy="median")
+\end{lstlisting}
+
+You need do drop any non numeric attributes and then fit the imputer instance to the training data:
+\begin{lstlisting}
+  imputer.fit(df)
+\end{lstlisting}
+
+Now you can use this ``trained'' imputer to transform the training set:
+\begin{lstlisting}
+  X = imputer.transform(df)
+\end{lstlisting}
+
+The result is a NumPy array that you can put back into a Pandas DataFrame:
+\begin{lstlisting}
+  df_transformed = pd.DataFrame(X, columns=df.columns)
+\end{lstlisting}
+
+\subsection{Handling Text and Categorical Attributes}
+
+Most Machine Learning algorithms prefer to work with numbers. It's possible to convert categories from text to numbers. For this, we can use Scikit-Learn's OrdinalEncoder class:
+\begin{lstlisting}
+  from sklearn.preprocessing import OrdinalEncoder
+
+  ordinal_encoder = OrdinalEncoder()
+  df_encoded = ordinal_encoder.fit_transform(df)
+\end{lstlisting}
+
+One issue with this representation is that ML algorithms will assume that two nearby values are more similar than two distant values. This may be fine in some cases (e.g. for ordered categories such as ``bad'', ``average'' and ``good''). One solution is to use one-hot encoding:
+\begin{lstlisting}
+  from sklearn.preprocessing import OneHotEncoder
+
+  encoder = OneHotEncoder()
+  df_1hot = encoder.fit_transform(df) 
+\end{lstlisting}
+
+Notice that the output is a SciPy sparse matrix. This is very useful when you have categorical attributes with thousands of categories.
+
+\section{Scikit-learn Design}
+
+All objects share a consistent and simple interface:
+\begin{description}
+  \item [Estimators] Any object that can estimate some parameters based on a dataset is called an estimator (e.g., an imputer is an estimator). The estimation itself is performed by the \lstinline{fit()} method, and it takes only a dataset as a parameter (or two for supervised learning algorithms; the second dataset contains the labels). Any other parameter needed to guide the estimation process is considered a hyperparameter (such as an imputer’s strategy), and it must be set as an instance variable (generally via a constructor parameter).
+  \item [Transformers] Some estimators (such as an imputer) can also transform a dataset; these are called transformers. Once again, the API is quite simple: the transformation is performed by the \lstinline{transform()} method with the dataset to transform as a parameter. It returns the transformed dataset. This transformation generally relies on the learned parameters, as is the case for an imputer. All transformers also have a convenience method called \lstinline{fit_transform()} that is equivalent to calling \lstinline{fit()} and then \lstinline{transform()} (but sometimes \lstinline{fit_transform()} is optimized and runs much faster).
+  \item [Predictors] Finally, some estimators are capable of making predictions given a dataset; they are called predictors. For example, the LinearRegression model in the previous chapter was a predictor: it predicted life satisfaction given a country’s GDP per capita. A predictor has a \lstinline{predict()} method that takes a dataset of new instances and returns a dataset of corresponding predictions. It also has a \lstinline{score()} method that measures the quality of the predictions given a test set (and the corresponding labels in the case of supervised learning
+algorithms)
+\end{description}
+
+
+\section{Custom transformers}
+
+All you need is to create a class and implement three methods: \lstinline{fit(), self(), fit_tranform()}\\
+
+You can get the last one for free by symply adding \lstinline{TransformerMixin} as base class. Also if you add \lstinline{BaseEstimator} as a base class you will get two extra methods: \lstinline{get_params(), set_params()}
+
+\subsection{Feature scaling}
+
+With few exceptions, ML algorithms don't perform well when the input numerical attributes have very different scales.\\
+
+There are two common ways to get all attributes to have the same scale.  min-max scaling and standardization. Unlike min-max scaling, standardization does not bound values to a specific range, which may be a problem for some algorithms. However, standardization is much less affected by outliers.
+
+\subsection{Transformation pipelines}
+
+There are many data transformation steps that need to be executed in the right order. Scikit-learn provides the \lstinline{Pipeline} class to help with such sequences of transformations.
+
+The \lstinline{Pipeline} constructor takes a list of name/estimator pairs defining a sequence of steps. All but the last estimator must be transformers (i.e have the \lstinline{fit_transform} method)
+
+\begin{lstlisting}
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+num_pipeline = Pipeline([
+('imputer', SimpleImputer(strategy="median")),
+('attribs_adder', CombinedAttributesAdder()),
+('std_scaler', StandardScaler()),
+])
+
+housing_num_tr = num_pipeline.fit_transform(housing_num)
+\end{lstlisting}
+
+The pipeline exposes the same methods as the final estimator.\\
+
+It's possible to create a pipeline for both numerical and categorical attributes:
+
+\begin{lstlisting}
+from sklearn.compose import ColumnTransformer
+
+num_attribs = list(housing_num) # numerical columns
+cat_attribs = ["ocean_proximity"] # categoric columns
+
+full_pipeline = ColumnTransformer([
+("num", num_pipeline, num_attribs),
+("cat", OneHotEncoder(), cat_attribs),
+])
+
+housing_prepared = full_pipeline.fit_transform(housing)
+\end{lstlisting}
+
+Rq. By default the remaining columns (the ones not listed) will be dropped
+
+\section{Select and Train a Model}
+
+\subsection{Evaluate a model}
+
+You don't want to touch the test set until you are ready to launch a model you are confident about, so you need to use part of the training set for training and part for model validation.
+
+You can use Scikit-Learn's \lstinline{K-fold cross-validation} feature. The following code randomly splits the training set into 10 distinct subsets called folds, then it trains and evaluates the Decision Tree model 10 times, picking a different fold for evaluation every time and training on the other 9 folds. The result in an array containing the 10 evaluation scores.
+
+\begin{lstlisting}
+from sklearn.model_selection import cross_val_score
+
+scores = cross_val_score(tree_reg, housing_prepared, housing_labels, scoring="neg_mean_squared_error", cv=10)
+
+tree_rmse_scores = np.sqrt(-scores)
+\end{lstlisting}
+
+Rq. Scikit-Learn’s cross-validation features expect a utility function (greater is better) rather than a cost function (lower is better), so the scoring function is actually the opposite of the MSE (i.e., a negative value), which is why the preceding code computes -scores before calculating the square root 
+
+\section{Fine tune your model}
+
+Let's assume you now have a short list of promising models. You now need to fine-tune them.
+
+\subsection{Grid Search}
+
+All you need to do is tell \lstinline{GridSearchCV} which hyperparameters you want it to experiment with, and what values to try out, and it will evaluate all the possible combinations of hyperparameters values, using cross-validation.
+
+\subsection{Randomized Search}
+
+The grid search approach is fine when you are exploring relatively few combinations, like in the previous example, but when the hyperparameter search space is large, it is often preferable to use \lstinline{RandomizedSearchCV} instead. Instead of trying out all possible combinations, it evaluates a given number of random combinations by selecting a random value for each hyperparameter at every iteration.
+
+\subsection{Ensemble Methods}
+
+Another way to fine-tune your system is to try to combine the models that perform best. The group (or “ensemble”) will often perform better than the best individual model (just like Random Forests perform better than the individual Decision Trees they rely on), especially if the individual models make very different types of errors.  
+
+
+\subsection{Evaluate your system on the test set}
+After tweaking your models for a while, you eventually have a system that performs sufficiently well. Now is the time to evaluate the final model on the test set. There is nothing special about this process; just get the predictors and the labels from your test set, run your \lstinline{full_pipeline} to transform the data (call \lstinline{transform()} , not \lstinline{fit_transform()} , you do not want to fit the test set!), and evaluate the final model on the test set
+
+\begin{lstlisting}
+final_model = grid_search.best_estimator_
+
+X_test = strat_test_set.drop("median_house_value", axis=1)
+y_test = strat_test_set["median_house_value"].copy()
+
+X_test_prepared = full_pipeline.transform(X_test)
+
+final_predictions = final_model.predict(X_test_prepared)
+
+final_mse = mean_squared_error(y_test, final_predictions)
+final_rmse = np.sqrt(final_mse)
+\end{lstlisting}
+
+You might want to have an idea of how precise this estimate is.  For this, you can compute a 95\% confidence interval for the generalization error using scipy.stats.t.interval() :
+\begin{lstlisting}
+from scipy import stats
+
+confidence = 0.95
+squared_errors = (final_predictions - y_test) ** 2
+np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
+\end{lstlisting}
+
 \end{document}
