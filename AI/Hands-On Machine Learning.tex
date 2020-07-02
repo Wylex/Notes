@@ -6,6 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
+\usepackage{bm}
 
 \title{Hands-On Machine Learning}
 
@@ -352,5 +353,136 @@ confidence = 0.95
 squared_errors = (final_predictions - y_test) ** 2
 np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
 \end{lstlisting}
+
+\section{Classification}
+
+\subsection{Performance measures}
+
+Evaluating a classifier is often significantly trickier than evaluating a regressor. Accuracy is generally not the preferred performance measure for classifiers, especially when you are dealing with skewed datasets (i.e., when some classes are much more frequent than others).
+
+\subsubsection{Confusion Matrix}
+
+The general idea is to count the number of times instances of class A are classified as class B. For example, to know the number of times the classifier confused images of 5s with 3s, you would look in the 5\textsuperscript{th} row and 3\textsuperscript{rd} column of the confusion matrix.\\
+
+The confusion matrix gives you a lot of information, but sometimes you may prefer a more concise metric. An interesting one to look at is the accuracy of the positive predictions; this is called the precision of the classifier.
+
+\[precision = \frac{TP}{TP + FP}\]
+
+Precision is typically used along with another metric named recall, also called sensitivity or true positive rate.
+
+\[recall = \frac{TP}{TP + FN}\]
+
+It is often convenient to combine precision and recall into a single metric called the F 1 score, in particular if you need a simple way to compare two classifiers. The F 1 score is the harmonic mean of precision and recall.
+
+Whereas the regular mean treats all values equally, the harmonic mean gives much more weight to low values.  As a result, the classifier will only get a high F 1 score if both recall and precision are high.
+
+\[F_1 = \frac{2}{\frac{1}{precision} + \frac{1}{recall}}\]
+
+The F\textsubscript{1} score favors classifiers that have similar precision and recall. This is not always what you want: in some contexts you mostly care about precision, and in other contexts you really care about recall.
+
+\subsubsection{Precision/Recall Tradeoff}
+
+Scikit-Learn does not let you set the threshold directly, but it does give you access to the decision scores that it uses to make predictions. Instead of calling the classifier’s \lstinline{predict()} method, you can call its \lstinline{decision_function()} method, which returns a score for each instance, and then make predictions based on those scores using any threshold you wan
+
+\subsection{The ROC Curve}
+
+The receiver operating characteristic (ROC) curve is another common tool used with binary classifiers. It is very similar to the precision/recall curve, but instead of plotting precision versus recall, the ROC curve plots the true positive rate (another name for recall) against the false positive rate. The FPR is the ratio of negative instances that are incorrectly classified as positive.\\
+
+Since the ROC curve is so similar to the precision/recall (or PR) curve, you may wonder how to decide which one to use. As a rule of thumb, you should prefer the PR curve whenever the positive class is rare or when you care more about the false positives than the false negatives, and the ROC curve otherwise.
+
+\subsection{Multiclass Classification}
+
+Some algorithms (such as Random Forest classifiers or naive Bayes classifiers) are capable of handling multiple classes directly. Others (such as Support Vector Machine classifiers or Linear classifiers) are strictly binary classifiers. However, there are various strategies that you can use to perform multiclass classification using multiple binary classifiers.
+
+\begin{enumerate}
+    \item For example, one way to create a system that can classify the digit images into 10 classes (from 0 to 9) is to train 10 binary classifiers, one for each digit (a 0-detector, a 1-detector, a 2-detector, and so on). This is called the one-versus-all (OvA) strategy (also called one-versus-the-rest).
+    \item nother strategy is to train a binary classifier for every pair of digits: one to distinguish 0s and 1s, another to distinguish 0s and 2s, another for 1s and 2s, and so on. This is called the one-versus-one (OvO) strategy.
+\end{enumerate}
+
+Scikit-Learn detects when you try to use a binary classification algorithm for a multiclass classification task, and it automatically runs OvA (except for SVM classifiers for which it uses OvO) 
+
+\subsection{Multilabel Classification}
+
+Until now each instance has always been assigned to just one class. In some cases you may want your classifier to output multiple classes for each instance.
+
+\subsection{Multioutput Classification}
+
+It is simply a generalization of multilabel classification where each label can be multiclass (i.e., it can have more than two possible values).
+
+\section{Training Models}
+
+\subsection{Linear Regression Model}
+
+A linear model makes a prediction by simply computing a weighted sum of the input features, plus a constant called the bias term.
+\[\hat y = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \dots + \theta_n x_n = h_{\bm{\theta}}(\bm{x}) = \bm{\theta^T} \bm{x}\]
+Training a model means setting its parameters so that the model best fits the training set. The most common performance measure of a regression model is the Root Mean Square Error (RMSE). It is simpler to minimize the Mean Square Error (MSE) Linear Regression than the RMSE, and it leads to the same result.
+\[ MSE(\bm{X}, h_{\bm{\theta}}) = \frac{1}{m} \sum_{i=1}^m (\bm{\theta}^T\bm{x}^{(i)} - \bm{y}^{(i)}  )^2\]
+
+\subsubsection{The Normal Equation}
+To find the value of $\bm{\theta}$ that minimizes the cost function, there is a closed-form solution in other words, a mathematical equation that gives the result directly. This is called the Normal Equation:
+\[\hat \theta = (\bm{X}^T \bm{X})^{-1}\bm{X}^T \bm{y}\]
+
+\subsection{Gradient Descent}
+
+Gradient Descent is a very generic optimization algorithm capable of finding optimal solutions to a wide range of problems. The general idea of Gradient Descent is to tweak parameters iteratively in order to minimize a cost function. It measures the local gradient of the error function with regards to the parameter vector $\theta$, and it goes in the direction of descending gradient.\\
+
+Concretely, you start by filling $\bm{\theta}$ with random values (this is called random initialization), and then you improve it gradually, taking one baby step at a time, each step attempting to decrease the cost function (e.g., the MSE), until the algorithm converges to a minimum. \\
+
+An important parameter in Gradient Descent is the size of the steps, determined by the learning rate hyperparameter.
+
+\subsubsection{Batch Gradient Descent}
+
+To implement Gradient Descent, you need to compute the gradient of the cost function with regards to each model parameter $\theta_j$.\\
+
+Instead of computing these partial derivatives individually, you can use The gradient vector, noted $\nabla_{\bm{\theta}}MSE(\bm{\theta})$ which contains all the
+partial derivatives of the cost function (one for each model parameter).
+
+\[\nabla_{\bm{\theta}}MSE(\bm{\theta}) = \frac{2}{m} \bm{X}^T(\bm{X \theta - y}) \]
+Notice that this formula involves calculations over the full training set $\bm{X}$, at each Gradient Descent step! This is why the algorithm is called Batch Gradient Descent: it uses the whole batch of training data at every step (actually, Full Gradient Descent would probably be a better name).
+
+As a result it is terribly slow on very large training sets. However, Gradient Descent scales well with the number of features.\\
+
+Once you have the gradient vector, which points uphill, just go in the opposite direction to go downhill. This means subtracting $\nabla_{\bm{\theta}}MSE(\bm{\theta})$ from $\bm{\theta}$. This is where the learning rate $\eta$ comes into play: multiply the gradient vector by $\eta$ to determine the size of the downhill step.
+\[\bm{\theta}^{(next\ step)} = \bm{\theta} - \eta \nabla_{\bm{\theta}}MSE(\bm{\theta})\]
+
+\begin{lstlisting}
+eta = 0.1
+n_iterations = 1000
+m = 100
+
+theta = np.random.randn(2,1)
+
+for iteration in range(n_iterations):
+    gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)
+    theta = theta - eta * gradients
+\end{lstlisting}
+
+The result is pretty much the same as with the Normal Equation!
+
+\subsubsection{Stochastic Gradient Descent}
+
+The main problem with Batch Gradient Descent is the fact that it uses the whole training set to compute the gradients at every step, which makes it very slow when the training set is large. At the opposite extreme, Stochastic Gradient Descent just picks a random instance in the training set at every step and computes the gradients based only on that single instance.\\
+
+This algorithm is much less regular than Batch Gradient Descent: instead of gently decreasing until it reaches the minimum, the cost function will bounce up and down, decreasing only on average. Over time it will end up very close to the minimum, but once it gets there it will continue to bounce around, never settling down
+
+\begin{lstlisting}
+n_epochs = 50
+t_0, t_1 = 5, 50
+
+def learning_schedule(t):
+    return t0 / (t + t1)
+
+theta = np.random.randn(2,1)
+
+for epoch in range(n_epochs):
+    for i in range(m):
+        random_index = np.random.randint(m)
+        xi = X_b[random_index:random_index+1]
+        yi = y[random_index:random_index+1]
+        gradients = 2 * xi.T.dot(xi.dot(theta) - yi)
+        eta = learning_schedule(epoch * m + i)
+        theta = theta - eta * gradients
+\end{lstlisting}
+
 
 \end{document}
