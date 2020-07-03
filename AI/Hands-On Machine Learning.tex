@@ -7,6 +7,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\ra{1.3}
 
 \title{Hands-On Machine Learning}
 
@@ -226,7 +233,7 @@ One issue with this representation is that ML algorithms will assume that two ne
   from sklearn.preprocessing import OneHotEncoder
 
   encoder = OneHotEncoder()
-  df_1hot = encoder.fit_transform(df) 
+  df_1hot = encoder.fit_transform(df)
 \end{lstlisting}
 
 Notice that the output is a SciPy sparse matrix. This is very useful when you have categorical attributes with thousands of categories.
@@ -309,7 +316,7 @@ scores = cross_val_score(tree_reg, housing_prepared, housing_labels, scoring="ne
 tree_rmse_scores = np.sqrt(-scores)
 \end{lstlisting}
 
-Rq. Scikit-Learn’s cross-validation features expect a utility function (greater is better) rather than a cost function (lower is better), so the scoring function is actually the opposite of the MSE (i.e., a negative value), which is why the preceding code computes -scores before calculating the square root 
+Rq. Scikit-Learn’s cross-validation features expect a utility function (greater is better) rather than a cost function (lower is better), so the scoring function is actually the opposite of the MSE (i.e., a negative value), which is why the preceding code computes -scores before calculating the square root
 
 \section{Fine tune your model}
 
@@ -325,7 +332,7 @@ The grid search approach is fine when you are exploring relatively few combinati
 
 \subsection{Ensemble Methods}
 
-Another way to fine-tune your system is to try to combine the models that perform best. The group (or “ensemble”) will often perform better than the best individual model (just like Random Forests perform better than the individual Decision Trees they rely on), especially if the individual models make very different types of errors.  
+Another way to fine-tune your system is to try to combine the models that perform best. The group (or “ensemble”) will often perform better than the best individual model (just like Random Forests perform better than the individual Decision Trees they rely on), especially if the individual models make very different types of errors.
 
 
 \subsection{Evaluate your system on the test set}
@@ -399,7 +406,7 @@ Some algorithms (such as Random Forest classifiers or naive Bayes classifiers) a
     \item nother strategy is to train a binary classifier for every pair of digits: one to distinguish 0s and 1s, another to distinguish 0s and 2s, another for 1s and 2s, and so on. This is called the one-versus-one (OvO) strategy.
 \end{enumerate}
 
-Scikit-Learn detects when you try to use a binary classification algorithm for a multiclass classification task, and it automatically runs OvA (except for SVM classifiers for which it uses OvO) 
+Scikit-Learn detects when you try to use a binary classification algorithm for a multiclass classification task, and it automatically runs OvA (except for SVM classifiers for which it uses OvO)
 
 \subsection{Multilabel Classification}
 
@@ -484,5 +491,132 @@ for epoch in range(n_epochs):
         theta = theta - eta * gradients
 \end{lstlisting}
 
+\subsubsection{Mini-batch Gradient Descent}
+
+At each step, instead of computing the gradients based on the full training set (as in Batch GD) or based on just one instance (as in Stochastic GD), Minibatch GD computes the gradients on small random sets of instances called minibatches.\\
+
+\subsubsection{Comparison of algorithms for Linear Regression}
+
+\begin{tabular}{@{}llllll@{}}
+    \toprule
+    Algorithm & Large m & Large n & Hyperparams & Scalling required & Scikit-Learn \\
+    \hline
+    Normal Equation & Fast & Slow & 0 & No & n/a \\
+    SVD & Fast & Slow & 0 & No & LinearRegression \\
+    Batch GD & Slow & Fast & 2 & Yes & SGDRegressor \\
+    Stochastic GD & Fast & Fast & $\geq 2$ & Yes & SGDRegressor \\
+    Mini-batch GD & Fast & Fast & $\geq 2$ & Yes & SGDRegressor \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Polynomial Regression}
+
+What if your data is actually more complex than a simple straight line? Surprisingly, you can actually use a linear model to fit nonlinear data. A simple way to do this is to add powers of each feature as new features, then train a linear model on this extended set of features. This technique is called Polynomial Regression.
+
+\subsection{Learning Curves}
+
+How can you tell that your model is overfitting or underfitting the data?
+
+You can use cross-validation to get an estimate of a model’s generalization performance. If a model performs well on the training data but generalizes poorly according to the cross-validation metrics, then your model is overfitting. If it performs poorly on both, then it is underfitting. This is one way to tell when a model is too simple or too complex.\\
+
+Another way is to look at the learning curves: these are plots of the model’s performance on the training set and the validation set as a function of the training set size (or the training iteration).\\
+
+If both curves have reached a plateau, they are close and fairly high, these learning curves are typical of an underfitting model. If your model is underfitting the training data, adding more training examples will not help. You need to use a more complex model or come up with better features.\\
+
+If however there is a gap between the curves, this means that the model performs significantly better on the training data than on the validation data, which is the hallmark of an overfitting model. However, if you used a much larger training set, the two curves would continue to get closer. One way to improve an overfitting model is to feed it more training data until the validation error reaches the training error.
+
+\subsubsection{The Bias / Variance Tradeoff}
+
+An important theoretical result of statistics and Machine Learning is the fact that a model’s generalization error can be expressed as the sum of three very different errors:
+
+\begin{description}
+    \item [Bias]: This part of the generalization error is due to wrong assumptions, such as assuming that the data is linear when it is actually quadratic. A high-bias model is most likely to underfit the training data.
+    \item [Variance]: This part is due to the model’s excessive sensitivity to small variations in the training data. A model with many degrees of freedom (such as a high-degree polynomial model) is likely to have high variance, and thus to overfit the training data.
+    \item [Irreducible Error]: This part is due to the noisiness of the data itself. The only way to reduce this part of the error is to clean up the data (e.g., fix the data sources, such as broken sensors, or detect and remove outliers).
+\end{description}
+
+Increasing a model’s complexity will typically increase its variance and reduce its bias.  Conversely, reducing a model’s complexity increases its bias and reduces its variance.  This is why it is called a tradeoff.
+
+\subsection{Regularized Linear Models}
+
+A good way to reduce overfitting is to regularize the model (i.e., to constrain it): the fewer degrees of freedom it has, the harder it will be for it to overfit the data. For example, a simple way to regularize a polynomial model is to reduce the number of polynomial degrees.\\
+
+For a linear model, regularization is typically achieved by constraining the weights of the model. We will now look at Ridge Regression, Lasso Regression, and Elastic Net, which implement three different ways to constrain the weights.
+
+\subsubsection{Ridge Regression}
+
+A regularization term equal to $\alpha \sum_{i=1}^n \theta_i^2$ is added to the cost function. This forces the learning algorithm to not only fit the data but also keep the model weights as small as possible.\\
+
+Note that the regularization term should only be added to the cost function during training. Once the model is trained, you want to evaluate the model’s performance using the unregularized performance measure.
+
+It is quite common for the cost function used during training to be different from the performance measure used for testing. Apart from regularization, another reason why they might be different is that a good training cost function should have optimization-friendly derivatives, while the performance measure used for testing should be as close as possible to the final objective.\\
+
+The hyperparameter $\alpha$ controls how much you want to regularize the model. If $\alpha$ = 0 then Ridge Regression is just Linear Regression. If $\alpha$ is very large, then all weights end up very close to zero and the result is a flat line going through the data’s mean.
+
+Ridge Regression cost function:
+\[J(\bm{\theta}) = MSE(\bm{\theta}) + \alpha \sum_{i=1}^n \theta_i^2\]
+Note that the bias term $\theta_0$ is not regularized.\\
+
+As with Linear Regression, we can perform Ridge Regression either by computing a closed-form equation or by performing Gradient Descent. The pros and cons are the same.
+
+\subsubsection{Lasso Regression}
+
+Just like Ridge Regression, it adds a regularization term to the cost function, but it uses the $l_1$ norm of the weight vector instead of half the square of the $l_2$ norm.
+
+Lasso Regression cost function:
+\[J(\bm{\theta}) = MSE(\bm{\theta}) + \alpha \sum_{i=1}^n |\theta_i|\]
+
+An important characteristic of Lasso Regression is that it tends to completely eliminate the weights of the least important features (i.e., set them to zero). In other words, Lasso Regression automatically performs feature selection and outputs a sparse model (i.e., with few nonzero feature weights).
+
+\subsubsection{Elastic Net}
+
+Elastic Net is a middle ground between Ridge Regression and Lasso Regression. The regularization term is a simple mix of both Ridge and Lasso’s regularization terms, and you can control the mix ratio r. When r = 0, Elastic Net is equivalent to Ridge Regression, and when r = 1, it is equivalent to Lasso Regression.
+
+Elastic Net cost function:
+\[J(\bm{\theta}) = MSE(\bm{\theta}) + r \alpha \sum_{i=1}^n |\theta_i| + \frac{1-r}{2} \alpha \sum_{i=1}^n \theta_i^2\]
+
+So when should you use plain Linear Regression (i.e., without any regularization), Ridge, Lasso, or Elastic Net? It is almost always preferable to have at least a little bit of regularization, so generally you should avoid plain Linear Regression. Ridge is a good default, but if you suspect that only a few features are actually useful, you should prefer Lasso or Elastic Net since they tend to reduce the useless features’ weights down to zero as we have discussed. In general, Elastic Net is preferred over Lasso since Lasso may behave erratically when the number of features is greater than the number of training instances or when several features are strongly correlated.
+
+\subsubsection{Early Stopping}
+
+A very different way to regularize iterative learning algorithms such as Gradient Descent is to stop training as soon as the validation error reaches a minimum. This is called early stopping.
+
+\subsection{Logistic Regression}
+
+some regression algorithms can be used for classification as well (and vice versa). Logistic Regression (also called Logit Regression) is commonly used to estimate the probability that an instance belongs to a particular class.\\
+
+So how does it work? Just like a Linear Regression model, a Logistic Regression model computes a weighted sum of the input features (plus a bias term), but instead of outputting the result directly like the Linear Regression model does, it outputs the logistic of this result.\\
+
+The logistic noted $\sigma(.)$ is a sigmoid function that outputs a number between 0 and 1.
+\[\sigma(t) = \frac{1}{1+\exp{(-t)}}\]
+
+Once the Logistic Regression model has estimated the probability $\hat p = h_{\theta}(\bm{x})$ that an instance belongs to the positive class, it can make its prediction $\hat y$ easily.
+
+\subsubsection{Training and Cost Function}
+\[
+    c(\bm{\theta}) =
+    \begin{cases}
+        -\log{(\hat p)} & \text{if $y=1$}\\
+        -\log{(1 - \hat p)} & \text{if $y=0$}
+    \end{cases}
+\]
+The cost function over the whole training set is simply the average cost over all training instances.\\
+Logistic Regression cost function:
+\[J(\bm{\theta}) = -\frac{1}{m} \sum_{i=1}^m [y^{(i)}\log(\hat p^{(i)}) + (1-y^{(i)})\log(1- \hat p^{(i)})]\]
+
+The bad news is that there is no known closed-form equation to compute the value of $\bm{\theta}$ that minimizes this cost function (there is no equivalent of the Normal Equation).  But the good news is that this cost function is convex, so Gradient Descent (or any other optimization algorithm) is guaranteed to find the global minimum (if the learning rate is not too large and you wait long enough).
+
+\subsubsection{Softmax Regression}
+
+The Logistic Regression model can be generalized to support multiple classes directly, without having to train and combine multiple binary classifiers. This is called Softmax Regression, or Multinomial Logistic Regression.\\
+
+The idea is quite simple: when given an instance $\bm{x}$, the Softmax Regression model first computes a score $s_k(\bm{x})$ for each class k, then estimates the probability of each class by applying the softmax function (also called the normalized exponential) to the scores.\\
+
+Note that each class has its own dedicated parameter vector $\bm{\theta}(k)$. All these vectors are typically stored as rows in a parameter matrix $\bm{\Theta}$.
+
+Cross entropy cost function:
+\[J(\bm{\Theta}) = -\frac{1}{m} \sum_{i=1}^m \sum_{k=1}^K y_k^{(i)} \log(\hat p_k^{(i)})\]
+
+\section{Support Vector Machines}
 
 \end{document}
