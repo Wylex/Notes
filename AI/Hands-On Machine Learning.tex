@@ -619,4 +619,79 @@ Cross entropy cost function:
 
 \section{Support Vector Machines}
 
+\section{Decision Trees}
+
+\section{Ensemble Learning and Random Forests}
+
+\section{Dimensionality Reduction}
+
+Reducing dimensionality does lose some information (just like compressing an image to JPEG can degrade its quality), so even though it will speed up training, it may also make your system perform slightly worse. It also makes your pipelines a bit more complex and thus harder to maintain. So you should first try to train your system with the original data before considering using dimensionality reduction if training is too slow.
+
+In some cases, however, reducing the dimensionality of the training data may filter out some noise and unnecessary details and thus result in higher performance (but in general it won’t; it will just speed up training).\\
+
+Apart from speeding up training, dimensionality reduction is also extremely useful for data visualization (or DataViz). Reducing the number of dimensions down to two (or three) makes it possible to plot a condensed view of a high-dimensional training set on a graph and often gain some important insights by visually detecting patterns, such as clusters.
+
+Moreover, DataViz is essential to communicate your conclusions to people who are not data scientists, in particular decision makers who will use your results.
+
+\subsection{The Curse of Dimensionalilty}
+
+High dimensional datasets are at risk of being very sparse: most training instances are likely to be far away from each other. Of course, this also means that a new instance will likely be far away from any training instance, making predictions much less reliable than in lower dimensions, since they will be based on much larger extrapolations.  In short, the more dimensions the training set has, the greater the risk of overfitting it.\\
+
+In theory, one solution to the curse of dimensionality could be to increase the size of the training set to reach a sufficient density of training instances. Unfortunately, in practice, the number of training instances required to reach a given density grows exponentially with the number of dimensions.
+
+\subsection{Main Approches for Dimensionality Reduction}
+
+\subsubsection{Projection}
+
+In most real-world problems, training instances are not spread out uniformly across all dimensions. Many features are almost constant, while others are highly correlated.  As a result, all training instances actually lie within (or close to) a much lower-dimensional subspace of the high-dimensional space.
+
+\subsubsection{Manifold Learning}
+
+The Swiss roll is an example of a 2D manifold. Put simply, a 2D manifold is a 2D shape that can be bent and twisted in a higher-dimensional space. More generally, a d-dimensional manifold is a part of an n-dimensional space (where d < n) that locally resembles a d-dimensional hyperplane. In the case of the Swiss roll, d = 2 and n = 3: it locally resembles a 2D plane, but it is rolled in the third dimension. \\
+
+Many dimensionality reduction algorithms work by modeling the manifold on which the training instances lie; this is called Manifold Learning. It relies on the manifold assumption, also called the manifold hypothesis, which holds that most real-world high-dimensional datasets lie close to a much lower-dimensional manifold. This assumption is very often empirically observed.\\
+
+The manifold assumption is often accompanied by another implicit assumption: that the task at hand (e.g., classification or regression) will be simpler if expressed in the lower-dimensional space of the manifold. However, this assumption does not always hold.
+
+In short, if you reduce the dimensionality of your training set before training a model, it will usually speed up training, but it may not always lead to a better or sim‐ pler solution; it all depends on the dataset.
+
+\subsection{Dimensionality Reduction Algorithms}
+
+\subsubsection{PCA}
+
+Principal Component Analysis (PCA) is by far the most popular dimensionality reduction algorithm. First it identifies the hyperplane that lies closest to the data, and then it projects the data onto it.\\
+
+It seems reasonable to select the axis that preserves the maximum amount of variance, as it will most likely lose less information than the other projections. Another way to justify this choice is that it is the axis that minimizes the mean squared distance between the original dataset and its projection onto that axis. This is the rather simple idea behind PCA.\\
+
+So how can you find the principal components of a training set? Luckily, there is a standard matrix factorization technique called Singular Value Decomposition (SVD) that can decompose the training set matrix $\bm{X}$ into the matrix multiplication of three matrices $\bm{U\ \Sigma\ V^T}$, where $\bm{V}$ contains all the principal components that we are looking for.
+
+Once you have identified all the principal components, you can reduce the dimensionality of the dataset down to d dimensions by projecting it onto the hyperplane defined by the first d principal components. Selecting this hyperplane ensures that the projection will preserve as much variance as possible.\\
+
+To project the training set onto the hyperplane, you can simply compute the matrix multiplication of the training set matrix $\bm{X}$ by the matrix $\bm{W_d}$ , defined as the matrix containing the first d principal components.\\
+
+Instead of arbitrarily choosing the number of dimensions to reduce down to, it is generally preferable to choose the number of dimensions that add up to a sufficiently large portion of the variance (e.g., 95\%). Unless, of course, you are reducing dimensionality for data visualization—in that case you will generally want to reduce the dimensionality down to 2 or 3.\\
+
+It is possible to perform complex nonlinear projections for dimensionality reduction. This is called Kernel PCA (kPCA).  It is often good at preserving clusters of instances after projection, or sometimes even unrolling datasets that lie close to a twisted manifold.
+
+\subsubsection{LLE}
+
+Locally Linear Embedding (LLE) is another very powerful nonlinear dimensionality reduction (NLDR) technique.  It is a Manifold Learning technique that does not rely on projections like the previous algorithms.
+
+In a nutshell, LLE works by first measuring how each training instance linearly relates to its closest neighbors, and then looking for a low-dimensional representation of the training set where these local relationships are best preserved (more details shortly).\\
+
+Here's how LLE works: for each training instance $\bm{x}^{(i)}$, the algorithm identifies its k closest neighbors, then tries to reconstruct $\bm{x}^{(i)}$ as a linear function of these neighbors. More specifically, it finds the weights $w_{i,j}$ such as that the squared distance between $\bm{x}^{(i)}$ and $\sum_{j=1}^m w_{i,j} \bm{x}^{(j)}$ is as small as possible, assuming $w_{i,j} = 0$ if $\bm{x}^{(j)}$ is not one of the k closest neighbors of $\bm{x}^{(i)}$
+
+\subsubsection{Other dimensionality Reduction Techniques}
+
+There are many other dimensionality reduction techniques, here are some of the most popular ones:
+\begin{itemize}
+    \item Radom Projection: Projects the data to a lower dimensional space using a random linear projection.
+    \item Multidimensional Scaling (MDS): Reduces dimensionality while trying to preserve the distances between the instances.
+    \item Isomap: Creates a graph by connecting each instance to its nearest neighbors, then reduces dimensionality while trying to preserve the geodesic distances between instances
+    \item t-Distributed Stochastic Neighbor Embedding (t-SNE): reduces dimensionality while trying to keep similar instances close and dissimilar instances apart. It is mostly used for visualization, in particular to visualize clusters of instances in high-dimensional space.
+    \item Linear Discriminant Analysis (LDA): it is actually a classification algorithm, but during training it learns the most discriminative axes between the classes, and these axes can then be used to define a hyperplane onto which to project the data. The benefit is that the projection will keep classes as far apart as possible, so LDA is a good technique to reduce dimensionality before running another classification algorithm such as an SVM classifier.
+\end{itemize}
+
+\section{Unsupervised Learning Techniques}
+
 \end{document}
