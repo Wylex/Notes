@@ -12,6 +12,7 @@
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{mathrsfs}
+\usepackage{verbatim}
 
 \newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
 \ra{1.3}
@@ -125,13 +126,25 @@ $\rightarrow$ Predictors: some estimators are capable of making predictions. Imp
         \item[-] Handle text and categorical attributes \\
              $\rightarrow$ Most ML algorithms can only work with numbers \\
              $\rightarrow$ Convert categories from text to numbers (OrdinalEncoder, OneHotEncoder...)
+        \item[-] Create custom transformers
+        \item[-] Feature Scaling \\
+            $\rightarrow$ min-max scaling \\
+            $\rightarrow$ standardization: Much less affected by outliers
+        \item[-] Pipelines: \\
+            $\rightarrow$ All but the last estimator must be transformers
     \end{itemize}
-\item Create custom transformers
-\item Feature Scaling
-
+\item Select and train a Model
+    \begin{itemize}
+        \item[-] Test a few models
+        \item[-] Fine-Tune yout model \\
+            $\rightarrow$ Gridsearch: it will evaluate every possible combination of hyperparameters values \\
+            $\rightarrow$ Randomized Search
+    \end{itemize}
+\item Evaluate on Test Set
 \end{enumerate}
 
 
+\begin{comment}
 \section{End-to-End Machine Learning Project}
 
 \subsection{Extract the data}
@@ -434,6 +447,8 @@ squared_errors = (final_predictions - y_test) ** 2
 np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
 \end{lstlisting}
 
+\end{comment}
+
 \section{Classification}
 
 \subsection{Performance measures}
@@ -452,9 +467,9 @@ Precision is typically used along with another metric named recall, also called 
 
 \[recall = \frac{TP}{TP + FN}\]
 
-It is often convenient to combine precision and recall into a single metric called the F 1 score, in particular if you need a simple way to compare two classifiers. The F 1 score is the harmonic mean of precision and recall.
+It is often convenient to combine precision and recall into a single metric called the $F_1$ score, in particular if you need a simple way to compare two classifiers. The $F_1$ score is the harmonic mean of precision and recall.
 
-Whereas the regular mean treats all values equally, the harmonic mean gives much more weight to low values.  As a result, the classifier will only get a high F 1 score if both recall and precision are high.
+Whereas the regular mean treats all values equally, the harmonic mean gives much more weight to low values.  As a result, the classifier will only get a high $F_1$ score if both recall and precision are high.
 
 \[F_1 = \frac{2}{\frac{1}{precision} + \frac{1}{recall}}\]
 
@@ -462,11 +477,11 @@ The F\textsubscript{1} score favors classifiers that have similar precision and 
 
 \subsubsection{Precision/Recall Tradeoff}
 
-Scikit-Learn does not let you set the threshold directly, but it does give you access to the decision scores that it uses to make predictions. Instead of calling the classifier’s \lstinline{predict()} method, you can call its \lstinline{decision_function()} method, which returns a score for each instance, and then make predictions based on those scores using any threshold you wan
+Scikit-Learn does not let you set the threshold directly, but it does give you access to the decision scores that it uses to make predictions. Instead of calling the classifier’s \lstinline{predict()} method, you can call its \lstinline{decision_function()} method, which returns a score for each instance, and then make predictions based on those scores using any threshold you want.
 
-\subsection{The ROC Curve}
+\subsubsection{The ROC Curve}
 
-The receiver operating characteristic (ROC) curve is another common tool used with binary classifiers. It is very similar to the precision/recall curve, but instead of plotting precision versus recall, the ROC curve plots the true positive rate (another name for recall) against the false positive rate. The FPR is the ratio of negative instances that are incorrectly classified as positive.\\
+The Receiver Operating Characteristic (ROC) curve is another common tool used with binary classifiers. It is very similar to the precision/recall curve, but instead of plotting precision versus recall, the ROC curve plots the true positive rate (another name for recall) against the false positive rate. The FPR is the ratio of negative instances that are incorrectly classified as positive.\\
 
 Since the ROC curve is so similar to the precision/recall (or PR) curve, you may wonder how to decide which one to use. As a rule of thumb, you should prefer the PR curve whenever the positive class is rare or when you care more about the false positives than the false negatives, and the ROC curve otherwise.
 
@@ -491,7 +506,7 @@ It is simply a generalization of multilabel classification where each label can 
 
 \section{Training Models}
 
-\subsection{Linear Regression Model}
+\subsection{Normal Equation (Linear Regression)}
 
 A linear model makes a prediction by simply computing a weighted sum of the input features, plus a constant called the bias term.
 \[\hat y = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \dots + \theta_n x_n = h_{\bm{\theta}}(\bm{x}) = \bm{\theta^T} \bm{x}\]
@@ -501,6 +516,10 @@ Training a model means setting its parameters so that the model best fits the tr
 \subsubsection{The Normal Equation}
 To find the value of $\bm{\theta}$ that minimizes the cost function, there is a closed-form solution in other words, a mathematical equation that gives the result directly. This is called the Normal Equation:
 \[\hat \theta = (\bm{X}^T \bm{X})^{-1}\bm{X}^T \bm{y}\]
+
+\subsubsection{SVD}
+
+The Normal Equation can be approximated using the pseudoinverse which is computed using a standard matrix factorization technique called Singular Value Decomposition (SVD).
 
 \subsection{Gradient Descent}
 
@@ -582,9 +601,6 @@ At each step, instead of computing the gradients based on the full training set 
     \bottomrule
 \end{tabular}
 
-\subsection{Polynomial Regression}
-
-What if your data is actually more complex than a simple straight line? Surprisingly, you can actually use a linear model to fit nonlinear data. A simple way to do this is to add powers of each feature as new features, then train a linear model on this extended set of features. This technique is called Polynomial Regression.
 
 \subsection{Learning Curves}
 
@@ -654,11 +670,19 @@ So when should you use plain Linear Regression (i.e., without any regularization
 
 A very different way to regularize iterative learning algorithms such as Gradient Descent is to stop training as soon as the validation error reaches a minimum. This is called early stopping.
 
+\section{Regression}
+
+\subsection{Polynomial Regression}
+
+What if your data is actually more complex than a simple straight line? Surprisingly, you can actually use a linear model to fit nonlinear data. A simple way to do this is to add powers of each feature as new features, then train a linear model on this extended set of features. This technique is called Polynomial Regression.
+
 \subsection{Logistic Regression}
 
-some regression algorithms can be used for classification as well (and vice versa). Logistic Regression (also called Logit Regression) is commonly used to estimate the probability that an instance belongs to a particular class.\\
+Some regression algorithms can be used for classification as well (and vice versa). Logistic Regression (also called Logit Regression) is commonly used to estimate the probability that an instance belongs to a particular class.\\
 
 So how does it work? Just like a Linear Regression model, a Logistic Regression model computes a weighted sum of the input features (plus a bias term), but instead of outputting the result directly like the Linear Regression model does, it outputs the logistic of this result.\\
+
+\[h_{\bm{\theta}}(\bm{x}) = \sigma (\bm{x}^T \bm{\theta})\]
 
 The logistic noted $\sigma(.)$ is a sigmoid function that outputs a number between 0 and 1.
 \[\sigma(t) = \frac{1}{1+\exp{(-t)}}\]
@@ -679,7 +703,7 @@ Logistic Regression cost function:
 
 The bad news is that there is no known closed-form equation to compute the value of $\bm{\theta}$ that minimizes this cost function (there is no equivalent of the Normal Equation).  But the good news is that this cost function is convex, so Gradient Descent (or any other optimization algorithm) is guaranteed to find the global minimum (if the learning rate is not too large and you wait long enough).
 
-\subsubsection{Softmax Regression}
+\subsection{Softmax Regression}
 
 The Logistic Regression model can be generalized to support multiple classes directly, without having to train and combine multiple binary classifiers. This is called Softmax Regression, or Multinomial Logistic Regression.\\
 
@@ -692,7 +716,41 @@ Cross entropy cost function:
 
 \section{Support Vector Machines}
 
+A Support Vector Machine (SVM) is a very powerful and versatile Machine Learning model, capable of performing linear or nonlinear classification, regression, and even outlier detection. SVMs are particularly well suited for classification of complex but small or medium-sized datasets.\\
+
+You can think of an SVM classifier as fitting the widest possible street (represented by the parallel dashed lines) between the classes.  This is called large margin classification. Adding more training instances “off the street” will not affect the decision boundary at all: it is fully determined (or “supported”) by the instances located on the edge of the street. These instances are called the support vectors.
+
+\subsection{Linear SVM Classification}
+
+\subsubsection{Soft Margin Classification}
+
+If we strictly impose that all instances be off the street and on the right side, this is called hard margin classification. There are two main issues with hard margin classification. First, it only works if the data is linearly separable, and second it is quite sensitive to outliers.\\
+
+To avoid these issues it is preferable to use a more flexible model. The objective is to find a good balance between keeping the street as large as possible and limiting the margin violations. This is called soft margin classification.
+
+\subsection{Nonlinear SVM Classification}
+
+Although linear SVM classifiers are efficient and work surprisingly well in many cases, many datasets are not even close to being linearly separable. One approach to handling nonlinear datasets is to add more features, such as polynomial features.
+
+\subsubsection{Polynomial Kernel}
+
+Adding polynomial features is simple to implement and can work great with all sorts of Machine Learning algorithms (not just SVMs), but at a low polynomial degree it cannot deal with very complex datasets, and with a high polynomial degree it creates a huge number of features, making the model too slow. \\
+
+Fortunately, when using SVMs you can apply an almost miraculous mathematical technique called the kernel trick (it is explained in a moment). It makes it possible to get the same result as if you added many polynomial features, even with very highdegree polynomials, without actually having to add them. So there is no combinatorial explosion of the number of features since you don’t actually add any features. This trick is implemented by the SVC class.
+
+\subsubsection{Gaussian RBF Kernel}
+
+Another technique to tackle nonlinear problems is to add features computed using a similarity function that measures how much each instance resembles a particular landmark. \\
+
+Just like the polynomial features method, the similarity features method can be useful with any Machine Learning algorithm, but it may be computationally expensive to compute all the additional features, especially on large training sets. However, once again the kernel trick does its SVM magic: it makes it possible to obtain a similar result as if you had added many similarity features, without actually having to add them.
+
+\subsection{SVM Regression}
+
+As we mentioned earlier, the SVM algorithm is quite versatile: not only does it support linear and nonlinear classification, but it also supports linear and nonlinear regression. The trick is to reverse the objective: instead of trying to fit the largest possible street between two classes while limiting margin violations, SVM Regression tries to fit as many instances as possible on the street while limiting margin violations.
+
 \section{Decision Trees}
+
+Like SVMs, Decision Trees are versatile Machine Learning algorithms that can perform both classification and regression tasks, and even multioutput tasks. One of the many qualities of Decision Trees is that they require very little data preparation. In particular, they don’t require feature scaling or centering at all.
 
 \section{Ensemble Learning and Random Forests}
 
