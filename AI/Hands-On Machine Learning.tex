@@ -752,7 +752,39 @@ As we mentioned earlier, the SVM algorithm is quite versatile: not only does it 
 
 Like SVMs, Decision Trees are versatile Machine Learning algorithms that can perform both classification and regression tasks, and even multioutput tasks. One of the many qualities of Decision Trees is that they require very little data preparation. In particular, they don’t require feature scaling or centering at all.
 
+\subsection{Instability}
+Decision Trees love orthogonal decision boundaries (all splits are perpendicular to an axis) which makes them sensitive to training set rotation. More generally, the main issue with Decision Trees is that they are very sensitive to small variations in the training data.
+
 \section{Ensemble Learning and Random Forests}
+
+If you aggregate the predictions of a group of predictors (such as classifiers or regressors), you will often get better predictions than with the best individual predictor. A group of predictors is called an ensemble.
+
+You will often use Ensemble methods near the end of a project, once you have already built a few good predictors, to combine them into an even better predictor. In fact, the winning solutions in Machine Learning competitions often involve several Ensemble methods.
+
+\subsection{Bagging and Pasting}
+
+One way to get a diverse set of classifiers is to use very different training algorithms, as just discussed. Another approach is to use the same training algorithm for every predictor, but to train them on different random subsets of the training set.
+When sampling is performed with replacement, this method is called bagging. When sampling is performed without replacement, it is called pasting.
+
+\subsubsection{Random Forests}
+
+Random Forest is an ensemble of Decision Trees, generally trained via the bagging method (or sometimes pasting), typically with max samples set to the size of the training set.
+
+\subsection{Boosting}
+
+Boosting refers to any Ensemble method that can combine several weak learners into a strong learner. The general idea of most boosting methods is to train predictors sequentially, each trying to correct its predecessor.
+
+\subsubsection{AdaBoost}
+
+One way for a new predictor to correct its predecessor is to pay a bit more attention to the training instances that the predecessor underfitted. This results in new predictors focusing more and more on the hard cases. This is the technique used by AdaBoost.
+
+\subsubsection{Gradient Boosting}
+
+Just like AdaBoost, Gradient Boosting works by sequentially adding predictors to an ensemble, each one correcting its predecessor. However, instead of tweaking the instance weights at every iteration like AdaBoost does, this method tries to fit the new predictor to the residual errors made by the previous predictor.
+
+\subsection{Stacking}
+
+It is based on a simple idea: instead of using trivial functions (such as hard voting) to aggregate the predictions of all predictors in an ensemble, why don’t we train a model to perform this aggregation?
 
 \section{Dimensionality Reduction}
 
