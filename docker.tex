@@ -11,11 +11,19 @@
 
 \maketitle
 
+A docker image is package or a template. It is used to create one or more containers.\\
+
+A docker container is a running instance of an image. They are isolated and have their own environments and set of processes.
+
 \section{Docker Commmands}
 
-\verb|docker pull|: pull an image\\
+\verb|docker pull <image>|: pull an image\\
 
-\verb|docker run <image>|: start a container, runs an instance of the image. If the image is not present it will go out to docker hub and pull the image down\\
+\verb|docker run <image>|: start a container, runs an instance of the image. If the image is not present it will go out to docker hub and pull the image down
+
+\verb| -d |: run the docker container in background mode\\
+
+\verb|docker attach <container>|: attach a detached container\\
 
 \verb|docker ps|: list all running containers. The container id and name are randomly generated
 
@@ -29,11 +37,12 @@
 
 \verb|docker rmi <image>|: remove an image\\
 
-\verb|docker exec <container> <command>|: execute a command on the container\\
+\verb|docker exec <container> <command>|: execute a command on a running container\\
 
-\verb|docker run -d <image>|: run the docker container in the background mode\\
+\verb|docker run <image> <command>|: execute a command when we run the container\\
 
-Rq. A container only lives as long as the process inside it is alive
+
+Rq. A container only lives as long as the process inside it is alive\\
 
 \section{Run commands}
 
@@ -42,7 +51,9 @@ Rq. A container only lives as long as the process inside it is alive
 By default the docker container does not listen to standart input. It runs in a non interactive mode. If you want to provide your input you must map the standart input of you host to the docker container:\\
 
 \verb|docker run -i <image>|\\
-The \verb|-i| parameter is for interactive mode. For attach the terminal to the container's terminal use the \verb|-t| option:\\
+
+The \verb|-i| parameter is for interactive mode.\\
+To attach the terminal to the container's terminal use the \verb|-t| option.  \verb|-t| stands for a sudo terminal:\\
 
 \verb|docker run -it <image>|\\
 
@@ -53,7 +64,7 @@ If you dockerize a web server that's listening on port 5000, you can then access
   \item Use the IP of the docker container. Every docker container has an IP assigned by default. It's an internal IP and only accesible within the docker host (that contains the container). So if you open the browser form within the docker host you can go to that IP.
   \item For accesing it outside the docker host you could use the IP of the docker host. But for that to work you must map the port inside the docker container to a free port on the docker host.
   \begin{verbatim}
-    docker run -p 80:5000 <image>
+    docker run -p <host_port>:<container_port> <image>
   \end{verbatim}
 \end{enumerate}
 
@@ -99,7 +110,7 @@ First what would be the steps to deploy the app manually:
 
 How to create the image:
 \begin{enumerate}
-  \item First create a docker file na,ed Dockerfile and write down the instruction for setting up the application:
+  \item First create a docker file named Dockerfile and write down the instruction for setting up the application:
 \begin{verbatim}
 FROM Ubuntu
 
@@ -127,17 +138,17 @@ This will create an image locally on your system
 \subsection{The Dockerfile}
 
 The dockerfile is a text file written in a specific format. Every docker image must be based of another image. Either an OS or anoher image based on an OS. \\
-\verb|ENTRYPOINT| allows us to specify a command that will be run when the image is runned as a container.
+\verb|ENTRYPOINT| allows us to specify a command that will be run when the image is ran as a container.
 
 \section{Command arguments}
 
-\verb|CMD| default command for an image. It's possible to override the default command for an image by creating a new image from it with \verb|FROM image| and oveeride then the \verb|CMD|
+\verb|CMD| default command for an image. It's possible to override the default command for an image by creating a new image from it with \verb|FROM image| and override then the \verb|CMD|.
 It's also possible to do it when running the image:
 \begin{verbatim}
   docker run ubuntu sleep 5
 \end{verbatim}
 
-The \verb|ENTRYPOINT| instruction is like the command instruction \verb|CMD| as in you can specify the program that will be runned when the container starts. What's different is that whatever you specify on the command line will get appended to the entry point. In case of the command line parameters passed will get replaced entirely.
+The \verb|ENTRYPOINT| instruction is like the command instruction \verb|CMD| as in you can specify the program that will be ran when the container starts. What's different is that whatever you specify on the command line will get appended to the entry point. In case of the command line parameters passed will get replaced entirely.
 
 It's possible to use both in case you want a default value for the \verb|ENTRYPOINT|. In this case the \verb|CMD| instruction will be appended to the \verb|ENTRYPOINT| instruction.
 
@@ -158,7 +169,7 @@ By default docker only creates one internal Bridge network. We can create our ow
   docker network create \
     --driver bridge \
     --subnet 182.18.0.0/16
-    custom-isolated-network
+    custom-isolated-network-name
 \end{verbatim}
 
 \verb|docker network ls|: list all networks
