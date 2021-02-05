@@ -1,0 +1,85 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{Generative Deep Learning}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\section{Text Generation}
+
+\subsection{Long Short-Term Memory Networks (LSTM)}
+
+An LSTM network is a particular type of recurrent neural network (RNN). RNNs contain a recurrent layer (or cell) that is able to handle sequential data by making its own output at a particular timestep form part of the input to the next timestep, so that information from the past can affect the prediction at the current timestep. We say LSTM network to mean a neural network with an LSTM recurrent layer.
+
+\subsubsection{Tokenization}
+
+Tokenization is the process of splitting the text up into individual units, such as words or characters. There are pros and cons to using both word and character tokens, and your choice will affect how you need to clean the text prior to modeling and the output from your model.\\
+
+Word tokens:
+\begin{itemize}
+ \item[-] All text can be converted to lowercase, to ensure capitalized words at the start of sentences are tokenized the same way as the same words appearing in the middle of a sentence. In some cases, however, this may not be desirable; for example, some proper nouns, such as names or places, may benefit from remaining capitalized so that they are tokenized independently.
+\item[-] The text vocabulary  may be very large, with some words appearing very sparsely or perhaps only once. It may be wise to replace sparse words with a token for unknown word, rather than including them as separate tokens, to reduce the number of weights the neural network needs to learn.
+\item[-] Words can be stemmed, meaning that they are reduced to their simplest form, so that different tenses of a verb remained tokenized together. For example, browse, browsing, browses, and browsed would all be stemmed to brows.
+\item[-] You will need to either tokenize the punctuation, or remove it altogether.
+\item[-] Using word tokenization means that the model will never be able to predict words outside of the training vocabulary.
+\end{itemize}
+
+Character tokens:
+\begin{itemize}
+\item[-] The model may generate sequences of characters that form new words outside of the training vocabulary—this may be desirable in some contexts, but not in others.
+\item[-] Capital letters can either be converted to their lowercase counterparts, or remain as separate tokens.
+\item[-] The vocabulary is usually much smaller when using character tokenization. This is beneficial for model training speed as there are fewer weights to learn in the final output layer.
+\end{itemize}
+
+\subsubsection{The Embedding Layer}
+
+An embedding layer is essentially a lookup table that converts each token into a vector of length \verb|embedding_size|.\\
+
+We embed each integer token into a continuous vector because it enables the model to learn a representation for each word that is able to be updated through backpropagation. We could also just one-hot encode each input token, but using an embedding layer is preferred because it makes the embedding itself trainable, thus giving the model more flexibility in deciding how to embed each token to improve model performance.
+
+\subsubsection{The Recurrent Layer}
+
+To understand the LSTM layer, we must first look at how a general recurrent layer works.\\
+
+A recurrent layer has the special property of being able to process sequential input data. It consists of a cell that updates its hidden state, one step at a time. This recurrent process continues until the end of the sequence. Once the sequence is finished, the layer outputs the final hidden state of the cell which is then passed on to the next layer of the network.
+
+\subsubsection{The LSTM Cell}
+
+To recap, the length of $h_t$ is equal to the number of units in the LSTM. This is a parameter that is set when you define the layer and has nothing to do with the length of the sequence. Make sure you do not confuse the term cell with unit. There is one cell in an LSTM layer that is defined by the number of units it contains.
+
+An LSTM cell maintains a cell state, $C_t$ , which can be thought of as the cell’s internal beliefs about the current status of the sequence. This is distinct from the hidden state, $h_t$ , which is ultimately output by the cell after the final timestep. The cell state is the same length as the hidden state (the number of units in the cell).
+
+The hidden state is updated in six steps:
+
+\begin{enumerate}
+    \item The hidden state of the previous timestep, $h_{t-1}$ , and the current word embedding, $x_t$ , are concatenated and passed through the forget gate. This gate is simply a dense layer with weights matrix $W_f$ , bias $b_f$ , and a sigmoid activation function.  The resulting vector, $f_t$ , has a length equal to the number of units in the cell and contains values between 0 and 1 that determine how much of the previous cell state, $C_{t-1}$ , should be retained.
+    \item The concatenated vector is also passed through an input gate which, like the forget gate, is a dense layer with weights matrix $W_i$ , bias $b_i$ , and a sigmoid activation function. The output from this gate, $i_t$ , has length equal to the number of units in the cell and contains values between 0 and 1 that determine how much new information will be added to the previous cell state, $C_{t-1}$ .
+    \item The concatenated vector is passed through a dense layer with weights matrix $W_C$ , bias $b_C$ , and a tanh activation function to generate a vector $C_t$ that contains the new information that the cell wants to consider keeping. It also has length equal to the number of units in the cell and contains values between –1 and 1.
+    \item $f_t$ and $C_{t-1}$ are multiplied element-wise and added to the element-wise multiplication of $i_t$ and $C_t$ . This represents forgetting parts of the previous cell state and then adding new relevant information to produce the updated cell state, $C_t$ .
+    \item The original concatenated vector is also passed through an output gate: a dense layer with weights matrix $W_o$ , bias $b_o$ , and a sigmoid activation. The resulting vector, $o_t$ , has a length equal to the number of units in the cell and stores values between 0 and 1 that determine how much of the updated cell state, $C_t$ , to output from the cell.
+    \item $o_t$ is multiplied element-wise with the updated cell state $C_t$ after a tanh activation has been applied to produce the new hidden state, $h_t$ .
+\end{enumerate}
+
+\subsection{RNN Extensions}
+
+\subsubsection{Stacked Recurrent Networks}
+
+The network we just looked at contained a single LSTM layer, but we can also train networks with stacked LSTM layers, so that deeper features can be learned from the text.
+
+To achieve this, we set the \verb|return_sequences| parameter within the first LSTM layer to True . This makes the layer output the hidden state from every timestep, rather than just the final timestep. The second LSTM layer can then use the hidden states from the first layer as its input data.
+
+\subsubsection{Gated Recurrent Units}
+
+Another type of commonly used RNN layer is the gated recurrent unit (GRU). The key differences from the LSTM unit are as follows:
+\begin{enumerate}
+    \item The forget and input gates are replaced by reset and update gates.
+    \item There is no cell state or output gate, only a hidden state that is output from the cell.
+\end{enumerate}
+
+\end{document}
