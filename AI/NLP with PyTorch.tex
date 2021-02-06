@@ -1,0 +1,74 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+\title{NLP with PyTorch}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\section{Observation and Target Encoding}
+
+We will need to represent the observations (text) numerically to use them in conjunction with machine learning algorithms. There are innumerable ways to perform this mapping/representation.
+
+\subsection{One-Hot Representation}
+
+The one-hot representation, as the name suggests, starts with a zero vector, and sets as 1 the corresponding entry in the vector if the word is present in the sentence or document.
+The collapsed one-hot representation for a phrase, sentence, or a document is simply a logical OR of the one-hot representations of its constituent words.
+
+\subsection{TF Representation}
+
+The TF representation of a phrase, sentence, or document is simply the sum of the one-hot representations of its constituent words.
+
+\subsection{TF-IDF Representation}
+
+The IDF representation penalizes common tokens and rewards rare tokens in the vector representation. The IDF(w) of a token w is defined with respect to a corpus as:
+
+\[IDF(w) = log \frac{N}{n_w}\]
+
+Where $n_w$ is the number of documents containing the word $w$ and $N$ is the total number of documents.\\
+
+In deep learning, it is rare to see inputs encoded using heuristic representations like TF-IDF because the goal is to learn a representation. Often, we start with a one-hot encoding using integer indices and a special “embedding lookup” layer to construct inputs to the neural network.
+
+\section{PyTorch Basics}
+
+PyTorch is an optimized tensor manipulation library that offers an array of packages for deep learning. At the core of the library is the tensor, which is a mathematical object holding some multidimensional data. A tensor of order zero is just a number, or a scalar. A tensor of order one (1st-order tensor) is an array of numbers, or a vector. Similarly, a 2nd-order tensor is an array of vectors, or a matrix.\\
+
+Creating Tensors:
+
+\begin{itemize}
+    \item[-] \verb|torch.Tensor(2,3)|: create a tensor randomly
+    \item[-] \verb|torch.rand(2,3)|: create a tensor randomly from uniform distribution on the interval $[0,1)$
+    \item[-] \verb|torch.randn(2,3)|: create a tensor randomly from standard uniform distribution
+\end{itemize}
+
+\subsubsection{Tensors and Computational Graphs}
+
+PyTorch tensor class encapsulates the data (the tensor itself) and a range of operations, such as algebraic operations, indexing, and reshaping operations. However, when the \verb|requires_grad| Boolean flag is set to True on a tensor, bookkeeping operations are enabled that can track the gradient at the tensor as well as the gradient function.\\
+
+First, PyTorch will keep track of the values of the forward pass. Then, at the end of the computations, a single scalar is used to compute a backward pass. The backward pass is initiated by using the backward() method on a tensor resulting from the evaluation of a loss function.  The backward pass computes a gradient value for a tensor object that participated in the forward pass.
+
+\section{NLP Basics}
+
+\subsection{Corpora, Tokens and Types}
+
+The process of breaking a text down into tokens is called tokenization. For agglutinative languages like Turkish, splitting on whitespace and punctuation might not be sufficient, and more specialized techniques might be warranted. It may be possible to entirely circumvent the issue of tokenization in some neural network models by representing text as a stream of bytes; this becomes very important for agglutinative languages.\\
+
+Types are unique tokens present in a corpus. The set of all types in a corpus is its vocabulary or lexicon. Words can be distinguished as content words and stopwords.  Stopwords such as articles and prepositions serve mostly a grammatical purpose, like filler holding the content words.\\
+
+N-grams are fixed-length (n) consecutive token sequences occurring in the text.
+
+\subsection{Lemmas and Stems}
+
+\begin{description}
+\item [Lemmas] are root forms of words. Sometimes, it might be useful to reduce the tokens to their lemmas to keep the dimensionality of the vector representation low.
+\item [Stemming] is the poor-man’s lemmatization. It involves the use of handcrafted rules to strip endings of words to reduce them to a common form called stems.
+\end{description}
+
+\subsection{Categorizing Sentences and Documents}
+
+\end{document}
