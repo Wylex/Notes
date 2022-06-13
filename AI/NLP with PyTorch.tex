@@ -71,4 +71,66 @@ N-grams are fixed-length (n) consecutive token sequences occurring in the text.
 
 \subsection{Categorizing Sentences and Documents}
 
+Categorizing or classifying documents is probably one of the earliest applications of NLP. The TF and TF-IDF representations are immediately useful for classifying and categorizing longer chunks of text such as documents or sentences.
+
+\subsection{Categorizing Words: POS Tagging}
+
+We can extend the concept of labeling from documents to individual words or tokens.
+
+\subsection{Categorizing Spans: Chunking and Named Entity Recognition}
+
+Often, we need to label a span of text; that is, a contiguous multitoken boundary.
+
+\section{Functional Components of Neural Networks}
+
+\subsection{Activation Function}
+
+\begin{description}
+    \item[Sigmoid]: The sigmoid function saturates (i.e., produces extreme valued outputs) very quickly and for a majority of the inputs. This can become a problem because it can lead to the gradients becoming either zero or diverging to an overflowing floating-point value. These phenomena are also known as vanishing gradient problem and exploding gradient problem, respectively. As a consequence, it is rare to see sigmoid units used in neural networks other than at the output, where the squashing property allows one to interpret outputs as probabilities.
+        \[f(x) = \frac{1}{1+\exp(-1)}\]
+    \item[Tanh]: The tanh activation function is a cosmetically different variant of the sigmoid. This becomes clear when you write down the expression for tanh:
+        \[f(x) = \frac{\exp(x) - \exp(-x)}{\exp(x) + \exp(-x)}\]
+    \item[ReLU]: The clipping effect of ReLU that helps with the vanishing gradient problem can also become an issue, where over time certain outputs in the network can simply become zero and never revive again. This is called the “dying ReLU” problem. To mitigate that effect, variants such as the Leaky ReLU and Parametric ReLU
+        \[f(x) = max(0, x)\]
+    \item[Softmax]: Like the sigmoid function, the softmax function squashes the output of each unit to be between 0 and 1. However, the softmax operation also divides each output by the sum of all the outputs, which gives us a discrete probability distribution over $k$ possible classes:
+        \[softmax(x_i) = \frac{e^{x_j}}{\sum_{j=1}^ke^{x_j}}\]
+    This is very useful for interpreting outputs for classification tasks, and so this transformation is usually paired with a probabilistic training objective, such as categorical cross entropy
+\end{description}
+
+\subsection{Loss Functions}
+
+\begin{description}
+    \item[Mean Square Error Loss]: For regression problems for which the network’s output $\hat y$ and the target $y$ are continuous values, one common loss function is the mean squared error (MSE):
+        \[L_{MSE}(y, \hat y)= \frac{1}{n}\sum_{i=1}^n(y - \hat y)^2\]
+        There are several other loss functions that you can use for regression problems, such as (MAE) and (RMSE)
+    \item[Categorical Cross-Entropy Loss]: Typically used in a multiclass classification setting in which the outputs are interpreted as predictions of class membership probabilities:
+        \[L_{cross entropy}(y, \hat y) = -\sum_i y_i \log(\hat y_i)\]
+    \item[Binary Cross-Entropy Loss]: The categorical cross-entropy loss function we saw in the previous section is very useful in classification problems when we have multiple classes. Sometimes, our task involves discriminating between two classes—also known as binary classification. For such situations, it is efficient to use the binary cross-entropy (BCE) loss.
+\end{description}
+
+\subsubsection{Neural Network Components}
+
+\begin{description}
+    \item[Model]: For example the perceptron. The perceptron is flexible in that it allows for any input size. In a typical modeling situation, the input size is determined by the task and data.
+    \item[Loss function]: For situations in which the model’s output is a probability, the most appropriate family of loss functions are cross entropy–based losses.
+    \item[Optimizer]: While the model produces predictions and the loss function measures the error between predictions and targets, the optimizer updates the weights of the model using the error signal. In its simplest form, there is a single hyperparameter that controls the update behavior of the optimizer. This hyperparameter, called a learning rate, controls how much impact the error signal has on updating the weights.\\
+
+    The PyTorch library offers several choices for an optimizer. Stochastic gradient descent (SGD) is a classic algorithm of choice, but for difficult optimization problems, SGD has convergence issues, often leading to poorer models. The current preferred alternative are adaptive optimizers, such as Adagrad or Adam, which use information about updates over time.
+\end{description}
+
+\subsection{Example}
+
+\begin{description}
+    \item[Vocabulary]: The Vocabulary coordinates the integer-to-token mappings. We use a Vocabulary both for mapping the text tokens to integers and for mapping the class labels to integers.\\
+        The Vocabulary class not only manages this bijection—allowing the user to add new tokens and have the index autoincrement—but also handles a special token called UNK,
+
+    \item[Vectorizer]: the Vectorizer encapsulates the vocabularies and is responsible for ingesting string data, like a review’s text, and converting it to numerical vectors that will be used in the training routine.
+    \item[Data Loader]: We use the final assisting class, PyTorch’s DataLoader , to group and collate the individual vectorized data points into minibatches.
+\end{description}
+
+\subsubsection{Dataset}
+PyTorch provides an abstraction for the dataset by providing a \verb|Dataset| class. The Dataset class is an abstract iterator. When using PyTorch with a new dataset, you must first subclass (or inherit from) the \verb|Dataset| class and implement these \verb|__getitem__()| and \verb|__len__()| methods.
+
+This creates a conceptual pact that allows various PyTorch utilities to work with our dataset. We cover one of these utilities, in particular the DataLoader
+
 \end{document}

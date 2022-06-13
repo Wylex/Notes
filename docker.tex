@@ -15,6 +15,13 @@ A docker image is package or a template. It is used to create one or more contai
 
 A docker container is a running instance of an image. They are isolated and have their own environments and set of processes.
 
+\section{Docker Terminology}
+
+\begin{description}
+    \item[Host terminal] The terminal that you use to interact with the operating system of your computer
+    \item[Guest terminal] The terminal that is run within the computer
+\end{description}
+
 \section{Docker Commmands}
 
 \verb|docker pull <image>|: pull an image\\
@@ -43,6 +50,10 @@ A docker container is a running instance of an image. They are isolated and have
 
 
 Rq. A container only lives as long as the process inside it is alive\\
+
+\verb|docker container prune|: remove all stopped containers\\
+
+\verb|docker image prune -a|: remove all unused images\\
 
 \section{Run commands}
 
