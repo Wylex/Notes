@@ -130,5 +130,17 @@ This example looks very much like the Functional API, except we do not need to c
 
 This extra flexibility comes at a cost: your model’s architecture is hidden within the \lstinline{call()} method, so Keras cannot easily inspect it, it cannot save or clone it, and when you call the \lstinline{summary()} method, you only get a list of layers, without any information on how they are connected to each other. Moreover, Keras cannot check types and shapes ahead of time, and it is easier to make mistakes. So unless you really need that extra flexibility, you should probably stick to the Sequential API or the Functional API.
 
+\section{Computing Gradients with Autodiff}
+
+\section{Loading and Prepocessing Data}
+
+TensorFlow takes care of all implementation details, such as multithreading, queuing, batching, prefetching, and so on.
+
+\subsection{The Data API}
+
+The whole Data API revolves around the concept of a dataset: this represents a sequence of data items. Usually you will use datasets that gradually read data from disk.
+
+Once you have a dataset, you can apply all sorts of transformations to it by calling its transformation methods. Each method returns a new dataset, so you can chain transformations.
+
 \end{document}
 

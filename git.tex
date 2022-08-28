@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{fourier}
+\usepackage{listings}
 
 \title{Git}
 
@@ -14,12 +15,153 @@
 
 \setlength{\parindent}{0cm}
 
+\section{Git setup}
+
+Git config operates at three levels:
+\begin{enumerate}
+    \item \emph{/etc/gitconfig}: Values for every user on the system \lstinline[language=bash]{git config --system}
+    \item \emph{~/.gitconfig} or \emph{~/.config/git/config}: Specific to the user \lstinline[language=bash]{git config --global}
+    \item \emph{config}: Specific to the repository
+\end{enumerate}
+Each level overrides values in the previous level
+
+\begin{description}
+    \item[Indentity]: Every git commit uses the name and email:
+        \begin{enumerate}
+            \item[-] \lstinline{git config --global user.name "John Doe"}
+            \item[-] \lstinline{git config --global user.email "johndoe@example.com"}
+        \end{enumerate}
+    \item[Editor]: Every git commit uses the name and email:
+        \begin{enumerate}
+            \item[-] \lstinline{git config --global core.editor emacs}
+        \end{enumerate}
+    \item[Checking your settings]: Every git commit uses the name and email:
+        \begin{enumerate}
+            \item[-] \lstinline{git config --list}
+        \end{enumerate}
+    \item[Getting help]:
+        \begin{enumerate}
+            \item[-] \lstinline{git help <verb>}
+            \item[-] \lstinline{git <verb> --help}
+            \item[-] \lstinline{man git-<verb>}
+        \end{enumerate}
+\end{description}
+
+\subsection{Aliases}
+
+\begin{description}
+    \item[] \lstinline{git config --global alias.co checkout}
+    \item[] \lstinline{git config --global alias.br branch}
+    \item[] \lstinline{git config --global alias.ci commit}
+    \item[] \lstinline{git config --global alias.st status}
+\end{description}
+
+
 \section{Basics}
 
-Initilize repository:
-\begin{verbatim}
-  git init
-\end{verbatim}
+\begin{description}
+    \item[Initialize repo]:
+        \begin{enumerate}
+            \item[-] \lstinline{git init}: creates a new subdirectory \emph{.git}
+            \item[-] \lstinline{git clone <url> [name]}: copy existing repository. Every version of every file is pulled down by default
+        \end{enumerate}
+    \item[Recording changes]:
+        \begin{enumerate}
+            \item[-] \lstinline{git status}: main tool to determine which files are in which state
+        \end{enumerate}
+    \item[Viewing staged and unstaged changes]:
+        \begin{enumerate}
+            \item[-] \lstinline{git diff}: similar to git status but shows the exact lines added and removed. It compares your working directory with your staging area. If you want to see what's staged that will go into the next commit, you can use \lstinline{gid diff --staged}
+        \end{enumerate}
+    \item[Tracking new files]:
+        \begin{enumerate}
+            \item[-] \lstinline{git add <file or directory>}: begin tracking a new file, stage files, marking merge-confliected files as resolved... \\
+                Git stages a file exactly as it is when you run \lstinline{git add}. If you modify the file, the new change won't be staged.
+        \end{enumerate}
+    \item[Ignoring files]:
+        \begin{enumerate}
+            \item[-] If you don't want a file to show as untracked, you can include it in the \emph{.gitignore} file.
+        \end{enumerate}
+\end{description}
+
+\subsection{Commiting Your Changes}
+
+\begin{description}
+    \item[Commiting changes]:
+        \begin{enumerate}
+            \item[-] \lstinline{git commit}: once your staging are is set up the way you want it, you can commit.
+        \end{enumerate}
+    \item[Removing files]:
+        \begin{enumerate}
+            \item[-] \lstinline{git rm}: remove a file from the tracked files and also removes the file from your working directory.
+            \item[-] \lstinline{git rm -f}: If you added the file create and add the file to the index, you must use \lstinline{-f} option. It prevents accidental removal of data that hasn't yet been recorded in a snapshot.
+            \item[-] \lstinline{git rm --cached}: Keep a file in the working tree but remove it from the staging area.
+        \end{enumerate}
+    \item[Moving files]:
+        \begin{enumerate}
+            \item[-] \lstinline{git mv <from> <to>}: Rename a file.
+        \end{enumerate}
+\end{description}
+
+\subsection{Viewing the commit history}
+
+\begin{description}
+    \item[View history]:
+        \begin{enumerate}
+            \item[-] \lstinline{git log}: Some of the most popular options are
+                \begin{enumerate}
+                    \item \lstinline{-p} which shows the difference introduced in each commit
+                    \item \lstinline{-<number>} limit the number of entries
+                    \item \lstinline{--pretty} change the log output formats
+                    \item \lstinline{--graph} add an ASCII graph showing your branch and merge history
+                    \item \lstinline{--since=2.weeks} list of commits made in the last two weeks
+                    \item \lstinline{--S<string>} filter commits that added or removed a reference to a specific location
+                    \item \lstinline{-- <path>} filter commits that modified a file
+                \end{enumerate}
+        \end{enumerate}
+\end{description}
+
+\subsection{Undoing Things}
+
+\begin{description}
+    \item[Modify last commit]:
+        \item[-] \lstinline{git commit --amend}: Take the staging area and uses it for the commit. It overwrites the previous commit.
+    \item[Unstaging a staged file]:
+        \item[-] \lstinline{git reset HEAD <filename>}
+    \item[Discard changes]:
+        \item[-] \lstinline{git checkout -- <filename>}
+\end{description}
+
+\subsection{Working with remotes}
+
+\begin{description}
+    \item[List remotes]: \lstinline{git remote}: See which remotes are configured. If you cloned the repository, you should at least see origin (default name Git gives to the server you cloned from). You can use \lstinline{-v} to see the url
+    \item[Add remotes]: \lstinline{git remote add <shortname> <url>}
+    \item[Fetch]: \lstinline{git fetch <remote name>}: pulls down all the data from that remote project that you don't have yet.
+    \item[Pull]: \lstinline{git pull}: if the branch is set up to track a remote branch, you can pull to automatically fetch and merge into the current branch.
+    \item[Push]: \lstinline{git push <remote> <branch>}
+    \item[Removing]: \lstinline{git remote rename <name> <new name>}
+    \item[Removing remote] \lstinline{git remote rm <name>}
+\end{description}
+
+\subsection{Tagging}
+
+\begin{description}
+    \item[List tags] \lstinline{git tag}
+    \item[Creating tags (annotated)] \lstinline{git tag -a <name> -m <message> [commit checksum]}
+    \item[Show tag info] \lstinline{git show <tag>}
+    \item[Creating tags (lightweight)] \lstinline{git tag <name> [commit checksum]}: this is basically the commit checksum stored in a file
+    \item[Sharing tags] \lstinline{git push <remote> <tag>}: \lstinline{git push} does not push tags to the remote server
+\end{description}
+
+\section{Git Branching}
+
+
+\section{Git flow}
+Each file in your working directory can be in two states: tracked or untracked. Tracked files are files that were in the last snapshot. They can be unmodified, modified or staged. Untracked files are everything else.
+
+\section{Git}
+
 
 View status:
 \begin{verbatim}
