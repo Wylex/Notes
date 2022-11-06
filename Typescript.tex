@@ -26,6 +26,10 @@
   \item[object]: set of all objects but does not know anything about their structure (can't access any property)
   \item[object literal]: set of all objects with a specif shape. The thing might be an object literal or a class
   \item[Object]: this si pretty much the same as the empty object type \{\}, and it's best avoided
+  \item[undefined]: the value \lstinline{undefined} is the only value with type \lstinline{undefined}
+  \item[null]: same as undefined but with \lstinline{null}
+  \item[void]: return type of a function that doesn't explicitely return anything
+  \item[never]: return type of a function that never return at all (infinite loop of exception). It's a subtype of every other type so it's assignable to every other type.
 \end{description}
 
 
@@ -68,7 +72,15 @@
 
 Arrays are a special kind of object that supports things like concatenation, pushing, searching and slicing. Ts supports two syntaxes for arrays: \lstinline{T[]} and \lstinline{Array<T>}. They are identical both in meaning and performance.
 
+It's possible to create an inmutable array using the \lstinline{readonly} type: \\\lstinline{let a: readonly number[] = [1,2,3]}
+
 \subsubsection{Tuples}
+
+Tuples are subtypes of \lstinline{array}. Tuples have to be explicitely typed when you declare them (same syntax for tuples and arrays).
+
+\subsubsection{Enums}
+
+There are two types of enums: enums that map string to numbers and enums that map strings to strings
 
 \section{Type operations}
 
@@ -79,4 +91,31 @@ Arrays are a special kind of object that supports things like concatenation, pus
   \item[Intersection]: You can declare that something is of type A and B with the intersection operator \lstinline{A & B} 
 \end{description}
 
+\section{Functions}
+
+\begin{description}
+  \item[Optional parameter]: \lstinline|(a: number, b?: number) => { ... }|
+  \item[Default parameter]: \lstinline|(a: number, b: number = 10) => { ... }|. Notice how when we use a default value, we remove the optional annotation \lstinline{?}
+  \item[Rest parameters]: \lstinline|(...numbers: number[]) => { ... }|
+\end{description}
+
+\subsubsection{Call Signatures}
+
+Like the \lstinline{object} type, there is a \lstinline{Function} type. \lstinline{Function} is a catchall type for all functions, and doesn't tell anything about the specific function it types.
+
+We can however also use call signatures: \lstinline{(a: number, b: number) => number}. Call signatures contain only type-level code (no values). That means they cannot express default values.
+
+\subsubsection{Overloaded Function Types}
+
+\begin{description}
+  \item[call signature]: \lstinline{(a: number, b: number) => number}
+  \item[Full call signature]:
+    \begin{lstlisting}
+type Add = {
+  (a: number, b: number): number
+  (a: number, b: number, c: number): number
+}
+    \end{lstlisting}
+    Full call signature allow function overloading
+\end{description}
 \end{document}
