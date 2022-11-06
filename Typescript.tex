@@ -1,0 +1,82 @@
+\documentclass[french]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{fourier}
+\usepackage{listings}
+
+\title{Typescript}
+
+\begin{document}
+\date{}
+
+\maketitle
+
+\section{Types}
+
+\begin{description}
+  \item[any]: set of all values, and you can do anything with it (makes your value behave like it would in regular JS)
+  \item[unknown]: set of all values but supports only compare (\lstinline{==}, \lstinline{===}, \lstinline{||} \lstinline{&&} \lstinline{?}), negate (\lstinline{!}) and refine (\lstinline{typeof} and \lstinline{instanceof})
+  \item[boolean]: two values true and \lstinline{false}. You can compare and negate them
+  \item[number]: set of all numbers (integers, floats, positives, negatives, \lstinline{Infinity}, \lstinline{NaN}...) and all operations related to numbers
+  \item[bigint]: set of large integers (without running into rounding errors)
+  \item[string]: set of all strings and the things you can do with them like concatenate, slice and so on
+  \item[symbol]: set of symbols (alternative to string keys in objects and maps)
+  \item[object]: set of all objects but does not know anything about their structure (can't access any property)
+  \item[object literal]: set of all objects with a specif shape. The thing might be an object literal or a class
+  \item[Object]: this si pretty much the same as the empty object type \{\}, and it's best avoided
+\end{description}
+
+
+\subsubsection{Remarks}
+
+\begin{description}
+  \item[const]: when declaring a variable, \lstinline{const} will narrow down the types. For example: \lstinline{let a = 10} will be infered as type 'number' but \lstinline{const a = 10} will be infered as type '10'. This behaviour only applies to primitive types (\lstinline{boolean, number, bigint, string, symbol}). Declaring an object with \lstinline{const} won't hint Ts to infer its type more narrowly because Js objects are mutable.
+\end{description}
+
+\subsection{Objects}
+
+\subsubsection{Object Literals}
+
+\begin{lstlisting}
+  let a: {
+    b: number,
+    c?: string,
+    [key: number]: boolean
+  }
+\end{lstlisting}
+
+\begin{description}
+  \item[Optional]: You can add the optional modifier \lstinline{?} to mark a property as optional
+  \item[Index Signature]: 
+    \lstinline{[key: T]: U} syntax is called an index signature. It's the way you tell Ts that the given object might contain more keys. The key's type \lstinline{T} must be assignable to either \lstinline{number} or \lstinline{string}.
+
+    Note that you can use any word for the index signature key's name - it doesn't have to be key
+  \item[Readonly]: You can mark fields as read-only with the \lstinline{readonly} modifier
+\end{description}
+
+
+\subsubsection*{Remarks}
+
+\begin{description}
+  \item[Empty object type]: object literal notation has one special case: empty object types (\{\}). Every type (except \lstinline{null} and \lstinline{undefined}) is assignable to an empty object type, which can make it tricky to use
+
+\end{description}
+
+\subsubsection{Arrays}
+
+Arrays are a special kind of object that supports things like concatenation, pushing, searching and slicing. Ts supports two syntaxes for arrays: \lstinline{T[]} and \lstinline{Array<T>}. They are identical both in meaning and performance.
+
+\subsubsection{Tuples}
+
+\section{Type operations}
+
+\begin{description}
+  \item[Type Aliases]: Just like any variable, it's possible to declare a type alias that points to a type: \lstinline{type Age = number} \\
+    Type Aliases are block-scoped. Every block and every function has its own scope, and inner types aliases declarations shadow outer ones.
+  \item[Union]: You can declare that something is of type A, B or both with the union operator \lstinline{A | B} 
+  \item[Intersection]: You can declare that something is of type A and B with the intersection operator \lstinline{A & B} 
+\end{description}
+
+\end{document}

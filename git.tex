@@ -31,11 +31,15 @@ Each level overrides values in the previous level
             \item[-] \lstinline{git config --global user.name "John Doe"}
             \item[-] \lstinline{git config --global user.email "johndoe@example.com"}
         \end{enumerate}
-    \item[Editor]: Every git commit uses the name and email:
+    \item[Editor]:
         \begin{enumerate}
             \item[-] \lstinline{git config --global core.editor emacs}
         \end{enumerate}
-    \item[Checking your settings]: Every git commit uses the name and email:
+    \item[Credentials]:
+        \begin{enumerate}
+            \item[-] \lstinline{git config --global credential.helper cache}
+        \end{enumerate}
+    \item[Checking your settings]:
         \begin{enumerate}
             \item[-] \lstinline{git config --list}
         \end{enumerate}
@@ -155,6 +159,40 @@ Each level overrides values in the previous level
 \end{description}
 
 \section{Git Branching}
+Git doesnt store data as a set of changes but as a series of snapshots. When you commit, git stores a commit object that contains a pointer to the snapshot of the content you staged along with other information (author, email, message, pointers to the parent commits...).\\
+\begin{enumerate}
+  \item Staging a file: checksums it, stores the version of the file and adds that checksum to the staging area
+  \item Commiting: checksums each subdirectory and stores those trees in the git repository. It then creates a commit object with a pointer to the root project tree.
+  \item Commiting again: the next commit stores a pointer to the parent commit.
+\end{enumerate}
+
+A branch in git is simply a movable pointer to one of these commits.
+
+\begin{description}
+  \item[Creating a new branch]: Creating a new branch, creates a new pointer for you to move around. How does git know what branch you're on? It keeps a special pointer called \emph{HEAD}
+  \item[Switching branches]: \lstinline{git checkout <branch>}: this moves the \emph{HEAD} to point to <branch>
+  \item[Merging]: \lstinline{git merge <from branch>}
+    \begin{description}
+      \item[Fast forward]: The commit pointed to by the branch you merge in is directly upstream of the commit you're on. Git simply moves the pointer forward.
+      \item[Three-way merge]: Instead of just moving the branch pointer, git creates a new snapshot that results from the three-way merge. This is a merge commit, and is special in that it has more than one parent.
+    \end{description}
+  \item[Merge Conflicts]: After resolving a conflict, run \lstinline{git add} on each file to mark it as resolved. Staging the file marks it as resolved in Git. You can then \lstinline{git commit} to finalize the merge commit.
+\end{description}
+
+\subsection{Branching workflows}
+
+\begin{description}
+  \item[Long-Running Branches]: You can have several branches that are always open and that you use for different stages of your development cycle; you can merge regularly from some of them into others.
+  \item[Topic Branches]: A topic branch is a short-lived branch that you create and use for a single particular feature.
+\end{description}
+
+\subsection{Remote Branches}
+Remote branches are pointers to the state of branches in your remote repository. They're local branches that you can't move. They are moved automatically when you do a network communication.
+
+\begin{description}
+  \item[Synchronize work]: \lstinline{git fetch <remote>} (it fetches any data and updates your local database, moving \emph{<remote>/<branch>} pointer to its new position.
+  \item[Tracking branches]: Checking out a branch from a remote, creates a tracking branch (or upstream branch). You can automatically \lstinline{push} and \lstinline{pull}
+\end{description}
 
 
 \section{Git flow}
