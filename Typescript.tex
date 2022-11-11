@@ -5,6 +5,10 @@
 \usepackage{babel}
 \usepackage{fourier}
 \usepackage{listings}
+\usepackage[scaled=0.85]{beramono}            % load a nice TT font
+
+\lstset{basicstyle=\ttfamily}    % set defaults for any listing
+
 
 \title{Typescript}
 
@@ -18,16 +22,16 @@
 \begin{description}
   \item[any]: set of all values, and you can do anything with it (makes your value behave like it would in regular JS)
   \item[unknown]: set of all values but supports only compare (\lstinline{==}, \lstinline{===}, \lstinline{||} \lstinline{&&} \lstinline{?}), negate (\lstinline{!}) and refine (\lstinline{typeof} and \lstinline{instanceof})
-  \item[boolean]: two values true and \lstinline{false}. You can compare and negate them
+  \item[boolean]: two values \lstinline{true} and \lstinline{false}. You can compare and negate them
   \item[number]: set of all numbers (integers, floats, positives, negatives, \lstinline{Infinity}, \lstinline{NaN}...) and all operations related to numbers
   \item[bigint]: set of large integers (without running into rounding errors)
   \item[string]: set of all strings and the things you can do with them like concatenate, slice and so on
   \item[symbol]: set of symbols (alternative to string keys in objects and maps)
   \item[object]: set of all objects but does not know anything about their structure (can't access any property)
-  \item[object literal]: set of all objects with a specif shape. The thing might be an object literal or a class
-  \item[Object]: this si pretty much the same as the empty object type \{\}, and it's best avoided
+  \item[object literal / shape]: set of all objects with a specif shape. The thing might be an object literal or a class
+  \item[Object]: this si pretty much the same as the empty object type \lstinline|{}|, and it's best avoided
   \item[undefined]: the value \lstinline{undefined} is the only value with type \lstinline{undefined}
-  \item[null]: same as undefined but with \lstinline{null}
+  \item[null]: same as \lstinline{undefined} but with \lstinline{null}
   \item[void]: return type of a function that doesn't explicitely return anything
   \item[never]: return type of a function that never return at all (infinite loop of exception). It's a subtype of every other type so it's assignable to every other type.
 \end{description}
@@ -36,7 +40,7 @@
 \subsubsection{Remarks}
 
 \begin{description}
-  \item[const]: when declaring a variable, \lstinline{const} will narrow down the types. For example: \lstinline{let a = 10} will be infered as type 'number' but \lstinline{const a = 10} will be infered as type '10'. This behaviour only applies to primitive types (\lstinline{boolean, number, bigint, string, symbol}). Declaring an object with \lstinline{const} won't hint Ts to infer its type more narrowly because Js objects are mutable.
+  \item[const]: when declaring a variable, \lstinline{const} will narrow down the types. For example: \lstinline{let a = 10} will be infered as type \lstinline{number} but \lstinline{const a = 10} will be infered as type \lstinline{10}. This behaviour only applies to primitive types: \\ \lstinline{boolean, number, bigint, string, symbol}. Declaring an object with \lstinline{const} won't hint ts to infer its type more narrowly because js objects are mutable.
 \end{description}
 
 \subsection{Objects}
@@ -61,10 +65,10 @@
 \end{description}
 
 
-\subsubsection*{Remarks}
+\subsubsection*{Remarks:}
 
 \begin{description}
-  \item[Empty object type]: object literal notation has one special case: empty object types (\{\}). Every type (except \lstinline{null} and \lstinline{undefined}) is assignable to an empty object type, which can make it tricky to use
+  \item[Empty object type]: object literal notation has one special case: empty object types (\lstinline|{}|). Every type (except \lstinline{null} and \lstinline{undefined}) is assignable to an empty object type, which can make it tricky to use
 
 \end{description}
 
@@ -118,4 +122,50 @@ type Add = {
     \end{lstlisting}
     Full call signature allow function overloading
 \end{description}
+
+\section{Polymorphism}
+
+\subsection{Bounded Polymorphism}
+
+\begin{description}
+  \item[Upper bound]: \lstinline{T} has an upper bound of \lstinline{TreeNode}: \lstinline{<T extends TreeNode>}. That is, \lstinline{T} can either be a \lstinline{TreeNode}, or a subtype of \lstinline{TreeNode}.
+  \item[Multiple constraints]:\\ It's possible to define multiple constraints: \lstinline{<Shape extends HasSides & SidesHaveLength>}.
+  \item[Generic type defaults]: \lstinline|type MyEvent<T = HTMLElement> = { ... }|
+\end{description}
+
+\section{Classes and Interfaces}
+
+\begin{description}
+  \item[this]: can be used as a type, just like you can use it as a value.
+
+  \begin{lstlisting}
+class Set {
+  add(value: number): this {
+    // ...
+  }
+}
+  \end{lstlisting}
+\end{description}
+
+\subsection{Interfaces}
+
+Type aliases and interfaces are mostly two syntaxes for the same things but there are three small differences:
+
+\begin{enumerate}
+  \item Type aliases are more general. Their righthand side can be any type, including a type expression (a type, and maybe some type operation like \lstinline{&} and \lstinline{|}). For an interface, the righthand must be a shape.
+  \item When you extend an interface, TS will make sure that the interface you're extending is assignable to your extension
+  \item Multiple interfaces with the same name in the same scope are automatically merged (declaration merging).
+\end{enumerate}
+
+\subsection{Implementation}
+
+When declaring a class, you can use \lstinline{implements} keyword to say that it satisfies a particular interface. Interfaces can declare instance properties, but they can't declare visibility modifies (\lstinline{private}, \lstinline{protected} and \lstinline{public}) and they can't use the \lstinline{static} keyword. It's possible however to declare properties as \lstinline{readonly}.
+
+
+Implementing an interface is really similar to extending an abstract class. Interfaces are more general and lightweight, and abstract classes are more special-purpose and feature-rich.
+
+\subsection{Values and types}
+
+Classes declare both values and types. If we want to use a class at runtime, so that we can instantiate it with \lstinline{new} or call static methods on it, use \lstinline{typeof}.
+
 \end{document}
