@@ -17,7 +17,7 @@
 
 \maketitle
 
-\section{Types}
+\section{Primitives}
 
 \begin{description}
   \item[any]: set of all values, and you can do anything with it (makes your value behave like it would in regular JS)
@@ -34,18 +34,53 @@
   \item[null]: same as \lstinline{undefined} but with \lstinline{null}
   \item[void]: return type of a function that doesn't explicitely return anything
   \item[never]: return type of a function that never return at all (infinite loop of exception). It's a subtype of every other type so it's assignable to every other type.
+  \item[Record]: describe an object as a map from something to something: \\ \lstinline{Record<Weekday, Day>}. It enforces 'totality' (the object defines a specific set of keys).
+  \item[Mapped Types]: it's a way to map over an object's key and value types:
+    \begin{lstlisting}
+type MyMappedType = {
+  [key in UnionType]: ValueType
+}
+    \end{lstlisting}
+    They give more power than the \lstinline{Record} type because you can put constraints on which value type corresponds to which key name.
+\end{description}
+
+\begin{description}
+  \item[Make all fields optional]: \lstinline{Partial<ObjectType>}
+    \begin{lstlisting}
+type OptionalObject = {
+  [K in keyOf ObjectType]?: ObjectType[K]
+}
+    \end{lstlisting}
+  \item[Make all fields nullable]:
+    \begin{lstlisting}
+type OptionalObject = {
+  [K in keyOf ObjectType]: ObjectType[K] | null
+}
+    \end{lstlisting}
+  \item[Make all fields readonly]: \lstinline{Readonly<ObjectType>}
+    \begin{lstlisting}
+type OptionalObject = {
+  readonly [K in keyOf ObjectType]: ObjectType[K]
+}
+    \end{lstlisting}
+  \item[Select some fields]: \lstinline{Pick<ObjectType, Fields>}
+    \begin{lstlisting}
+type OptionalObject = {
+  [K in keyOf Fields]: ObjectType[K]
+}
+    \end{lstlisting}
 \end{description}
 
 
-\subsubsection{Remarks}
+\subsubsection*{Remarks:}
 
 \begin{description}
   \item[const]: when declaring a variable, \lstinline{const} will narrow down the types. For example: \lstinline{let a = 10} will be infered as type \lstinline{number} but \lstinline{const a = 10} will be infered as type \lstinline{10}. This behaviour only applies to primitive types: \\ \lstinline{boolean, number, bigint, string, symbol}. Declaring an object with \lstinline{const} won't hint ts to infer its type more narrowly because js objects are mutable.
 \end{description}
 
-\subsection{Objects}
+\section{Objects}
 
-\subsubsection{Object Literals}
+\subsection{Object Literals}
 
 \begin{lstlisting}
   let a: {
@@ -72,44 +107,35 @@
 
 \end{description}
 
-\subsubsection{Arrays}
+\subsection{Arrays}
 
 Arrays are a special kind of object that supports things like concatenation, pushing, searching and slicing. Ts supports two syntaxes for arrays: \lstinline{T[]} and \lstinline{Array<T>}. They are identical both in meaning and performance.
 
 It's possible to create an inmutable array using the \lstinline{readonly} type: \\\lstinline{let a: readonly number[] = [1,2,3]}
 
-\subsubsection{Tuples}
+\subsection{Tuples}
 
 Tuples are subtypes of \lstinline{array}. Tuples have to be explicitely typed when you declare them (same syntax for tuples and arrays).
 
-\subsubsection{Enums}
+\subsection{Enums}
 
 There are two types of enums: enums that map string to numbers and enums that map strings to strings
-
-\section{Type operations}
-
-\begin{description}
-  \item[Type Aliases]: Just like any variable, it's possible to declare a type alias that points to a type: \lstinline{type Age = number} \\
-    Type Aliases are block-scoped. Every block and every function has its own scope, and inner types aliases declarations shadow outer ones.
-  \item[Union]: You can declare that something is of type A, B or both with the union operator \lstinline{A | B} 
-  \item[Intersection]: You can declare that something is of type A and B with the intersection operator \lstinline{A & B} 
-\end{description}
 
 \section{Functions}
 
 \begin{description}
   \item[Optional parameter]: \lstinline|(a: number, b?: number) => { ... }|
-  \item[Default parameter]: \lstinline|(a: number, b: number = 10) => { ... }|. Notice how when we use a default value, we remove the optional annotation \lstinline{?}
+  \item[Default parameter]: When we use a default value, we remove the optional annotation \lstinline{?}: \lstinline|(a: number, b: number = 10) => { ... }|
   \item[Rest parameters]: \lstinline|(...numbers: number[]) => { ... }|
 \end{description}
 
-\subsubsection{Call Signatures}
+\subsection{Call Signatures}
 
 Like the \lstinline{object} type, there is a \lstinline{Function} type. \lstinline{Function} is a catchall type for all functions, and doesn't tell anything about the specific function it types.
 
 We can however also use call signatures: \lstinline{(a: number, b: number) => number}. Call signatures contain only type-level code (no values). That means they cannot express default values.
 
-\subsubsection{Overloaded Function Types}
+\subsection{Overloaded Function Types}
 
 \begin{description}
   \item[call signature]: \lstinline{(a: number, b: number) => number}
@@ -125,13 +151,29 @@ type Add = {
 
 \section{Polymorphism}
 
-\subsection{Bounded Polymorphism}
-
 \begin{description}
   \item[Upper bound]: \lstinline{T} has an upper bound of \lstinline{TreeNode}: \lstinline{<T extends TreeNode>}. That is, \lstinline{T} can either be a \lstinline{TreeNode}, or a subtype of \lstinline{TreeNode}.
   \item[Multiple constraints]:\\ It's possible to define multiple constraints: \lstinline{<Shape extends HasSides & SidesHaveLength>}.
   \item[Generic type defaults]: \lstinline|type MyEvent<T = HTMLElement> = { ... }|
 \end{description}
+
+\section{Type operations}
+
+\begin{description}
+  \item[Type Aliases]: Just like any variable, it's possible to declare a type alias that points to a type: \lstinline{type Age = number} \\
+    Type Aliases are block-scoped. Every block and every function has its own scope, and inner types aliases declarations shadow outer ones.
+  \item[Union]: You can declare that something is of type A, B or both with the union operator \lstinline{A | B} 
+  \item[Intersection]: You can declare that something is of type A and B with the intersection operator \lstinline{A & B} 
+\end{description}
+
+\subsubsection*{Objects}
+
+\begin{description}
+  \item[Key in]: You can key in to any shape (object, class constructor or class instance) and any array: \lstinline{type Friend = FriendList['friends'][number]}. \lstinline{number} is a way to key in  an array type. For tuples, you can use a number literal type to represent the index.
+  \item[Key of]: Get all of an object's keys as a union of string literal types.
+\end{description}
+
+
 
 \section{Classes and Interfaces}
 
@@ -167,5 +209,48 @@ Implementing an interface is really similar to extending an abstract class. Inte
 \subsection{Values and types}
 
 Classes declare both values and types. If we want to use a class at runtime, so that we can instantiate it with \lstinline{new} or call static methods on it, use \lstinline{typeof}.
+
+\section{Advanced Types}
+
+\begin{description}
+  \item[User-defined Type Guards]: When you have a function that refines its parameter's types and returns a boolean, you can use a user-defined type guard to make sure the refinement is flowed whenever you use that function: \\ \lstinline|function isString(a: unknown): a is string { // ... }|
+\end{description}
+
+\subsection{Conditional Types}
+
+\begin{lstlisting}
+type IsString<T> = T extends string
+  ? true
+  : false
+}
+
+type A = IsString<string> // true
+\end{lstlisting}
+
+Conditionals follow the distributive law:
+
+\begin{lstlisting}
+(string | number) extends T ? A : B <=>
+(string extends T ? A : B) | (number extends T ? A : B)
+\end{lstlisting}
+
+\subsubsection*{The infer keyword}
+
+With conditionals it's possible to declare generic types as part of a condition:
+\begin{lstlisting}
+type ElementType<T> = T extends unknown[] ? T[number] : T <=>
+type ElementType<T> = T extends (infer U)[] ? U : T
+\end{lstlisting}
+
+\subsubsection*{Built-in Conditional Types}
+
+\begin{description}
+\item[Exclude<T, U>]: compute those types in \lstinline{T} that are not in \lstinline{U}
+\item[Extract<T, U>]: compute the types in \lstinline{T} that you can assign to \lstinline{U}
+\item[NonNullable<T>]: compute a version of \lstinline{T} that excludes \lstinline{null} and \lstinline{undefined} 
+\item[ReturnType<F>]: computes a function's return type
+\item[InstanceType<C>]: computes the instance type of a class constructor
+\end{description}
+
 
 \end{document}
